@@ -1,0 +1,23 @@
+/* 
+ * Portfólio Yasmin Teixeira - Alto Padrão
+ * Importação da fonte Poppins do Google Fonts
+ */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --cor-fundo: #EFEEDE; /* Creme claro suave para o fundo principal */
+  --cor-primaria: #678956; /* Verde musgo para botões e elementos principais */
+  --cor-secundaria: #99B082; /* Verde sálvia claro para detalhes e áreas de apoio */
+  --cor-destaque: #B37C52; /* Terracota quente para chamadas de ação e alertas */
+  --cor-texto: #624D39; /* Marrom escuro profundo para textos e alto contraste */
+}
+
+  
+
+
+/* Ajustes Globais */
+body{
+
+  background-color: var(--cor-fundo);
+}
+
