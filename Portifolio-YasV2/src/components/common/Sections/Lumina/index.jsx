@@ -31,7 +31,7 @@ export default function LuminaSection() {
               <div className="position-relative">
                 <div className="card border-0 shadow-lg rounded-4 overflow-hidden bg-dark lumina-preview">
                   <img 
-                    src="/Screenshot 2026-09-04 100901.png" 
+                    src="home.png" 
                     alt="Dashboard Preview" 
                     className="img-fluid w-100 object-fit-cover"
                   />

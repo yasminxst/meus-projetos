@@ -1,5 +1,5 @@
 
-import { Link } from "react-router";
+import { Link, NavLink } from "react-router";
 
 const NavBar = () => {
   return (
@@ -28,13 +28,13 @@ const NavBar = () => {
         <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
           <div className="navbar-nav ms-auto">
 
-            <Link className="nav-link nav-link-yasmin active" to="/">
+            <NavLink className="nav-link nav-link-yasmin" to="/" end>
               Home
-            </Link>
+            </NavLink>
 
-            <Link className="nav-link nav-link-yasmin" to="/lumina">
+            <NavLink className="nav-link nav-link-yasmin" to="/lumina">
               Lumina
-            </Link>
+            </NavLink>
 
             <a
               className="nav-button"

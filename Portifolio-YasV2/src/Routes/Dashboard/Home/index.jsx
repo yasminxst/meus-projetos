@@ -1,10 +1,32 @@
 import { Link } from "react-router";
 
 const overviewCards = [
-	{ label: "Pacientes Ativos", value: "12", icon: "bi-kanban", tone: "rose" },
-	{ label: "Consultas hoje", value: "5", icon: "bi-graph-up-arrow", tone: "gold" },
-	{ label: "Atendimentos do mês", value: "45", change: "+5 esse mês", icon: "bi-chat-left-text", tone: "green" },
+	{ label: "Pacientes Ativos", value: "12", icon: "patients", tone: "rose" },
+	{ label: "Consultas hoje", value: "5", icon: "calendar", tone: "gold" },
+	{ label: "Atendimentos do mês", value: "45", change: "+5 esse mês", icon: "care", tone: "green" },
 ];
+
+const statIcons = {
+	patients: (
+		<svg viewBox="0 0 24 24" aria-hidden="true">
+			<circle cx="9" cy="8" r="3" />
+			<circle cx="17" cy="9" r="2.5" />
+			<path d="M3.5 19c.6-3.2 2.4-5 5.5-5s4.9 1.8 5.5 5M14 14.8c2.9-.7 5.3.8 6 3.7" />
+		</svg>
+	),
+	calendar: (
+		<svg viewBox="0 0 24 24" aria-hidden="true">
+			<rect x="4" y="5.5" width="16" height="15" rx="2" />
+			<path d="M8 3.5v4M16 3.5v4M4 10h16M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01" />
+		</svg>
+	),
+	care: (
+		<svg viewBox="0 0 24 24" aria-hidden="true">
+			<path d="M12 20s-7-4.4-7-10.2A4 4 0 0 1 12 7a4 4 0 0 1 7 2.8C19 15.6 12 20 12 20Z" />
+			<path d="M12 10v5M9.5 12.5h5" />
+		</svg>
+	),
+};
 
 function DashboardHome() {
 	return (
@@ -23,7 +45,7 @@ function DashboardHome() {
 			<div className="dashboard-stat-grid">
 				{overviewCards.map((card) => (
 					<article className="dashboard-stat-card" key={card.label}>
-						<div className={`dashboard-stat-icon ${card.tone}`}><i className={`bi ${card.icon}`} aria-hidden="true" /></div>
+						<div className={`dashboard-stat-icon ${card.tone}`}>{statIcons[card.icon]}</div>
 						<div>
 							<span>{card.label}</span>
 							<strong>{card.value}</strong>

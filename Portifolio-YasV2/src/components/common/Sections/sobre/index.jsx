@@ -9,7 +9,7 @@ const SobreSection = () => {
           {/* Coluna da Imagem (Reorganizada para a esquerda - Padrão de Mercado para seção 'Sobre') */}
           <div className="col-12 col-lg-5 text-center">
             <img 
-              src="/euu.jpeg" 
+              src="/sobre.png" 
               alt="Foto com o meu nome centralizado" 
               className="img-fluid rounded-4 shadow-lg object-fit-cover"
             />

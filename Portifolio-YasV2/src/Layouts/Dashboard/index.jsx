@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from "react-router";
+import { useState } from "react";
+import { Link, NavLink, Outlet } from "react-router";
 import "./dashboard.css";
 
 const navigationItems = [
@@ -9,6 +10,8 @@ const navigationItems = [
 ];
 
 function DashboardLayout() {
+  const [menuMobileAberto, setMenuMobileAberto] = useState(false);
+
   return (
     <div className="dashboard-shell">
       <aside className="dashboard-sidebar">
@@ -18,14 +21,29 @@ function DashboardLayout() {
             <strong>Lumina</strong>
             <span>workspace</span>
           </div>
+          <button
+            className={`dashboard-mobile-menu-button${menuMobileAberto ? " is-open" : ""}`}
+            type="button"
+            aria-label={menuMobileAberto ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={menuMobileAberto}
+            aria-controls="dashboard-navigation"
+            onClick={() => setMenuMobileAberto((aberto) => !aberto)}
+          >
+            <i aria-hidden="true" />
+          </button>
         </div>
 
-        <nav className="dashboard-navigation" aria-label="Navegação principal">
+        <nav
+          className={`dashboard-navigation${menuMobileAberto ? " is-mobile-open" : ""}`}
+          id="dashboard-navigation"
+          aria-label="Navegação principal"
+        >
           <span className="dashboard-navigation-label">Menu principal</span>
           {navigationItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
+              onClick={() => setMenuMobileAberto(false)}
               className={({ isActive }) =>
                 `dashboard-nav-link${isActive ? " is-active" : ""}`
               }
@@ -37,6 +55,15 @@ function DashboardLayout() {
         </nav>
 
         <div className="dashboard-sidebar-footer">
+          <Link
+            className="dashboard-portfolio-link"
+            to="/"
+            aria-label="Voltar ao portfólio"
+            title="Voltar ao portfólio"
+          >
+            <i className="bi bi-arrow-left" aria-hidden="true" />
+            <span>Voltar ao portfólio</span>
+          </Link>
           <div className="dashboard-profile-mini">
             <span className="dashboard-avatar">Y</span>
             <div>

@@ -209,6 +209,19 @@ footer {
     text-align: center;
 }
 
+.footer-logo-link {
+    width: fit-content;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.footer-logo {
+    display: block;
+    width: clamp(76px, 10vw, 112px);
+    height: clamp(76px, 10vw, 112px);
+    object-fit: contain;
+}
+
 
 footer p {
     color: rgba(255, 255, 255, 0.7);

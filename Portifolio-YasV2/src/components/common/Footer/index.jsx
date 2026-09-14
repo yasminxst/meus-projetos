@@ -1,4 +1,6 @@
 
+import { Link } from "react-router";
+
 const Footer = () => {
   return (
     <>
@@ -7,10 +9,9 @@ const Footer = () => {
         <div className="container">
           <div className="row g-4 mb-4">
             <div className="col-lg-4">
-              <a className="navbar-brand fw-bold text-white d-flex align-items-center gap-2 mb-3" href="#">
-                <i className="text-center bi bi-stars text-success fs-4"></i>
-                
-              </a>
+              <Link className="footer-logo-link navbar-brand fw-bold text-white d-flex align-items-center gap-2 mb-3" to="/">
+                <img className="footer-logo" src="/logov2.png" alt="Logo Yasmin Teixeira" />
+              </Link>
               <p className="small mb-3">
                 Yasmin Teixeira
               </p>
