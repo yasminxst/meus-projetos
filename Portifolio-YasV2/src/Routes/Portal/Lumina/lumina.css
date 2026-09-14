@@ -1,0 +1,1228 @@
+/* ==================================================
+   ESTILOS EXCLUSIVOS DA LUMINA
+   Identidade: Clínica • Acolhedora • Elegante
+================================================== */
+
+
+/* ==================================================
+   VARIÁVEIS DA LUMINA
+================================================== */
+
+.lumina-page {
+
+    --lumina-verde: #808C6D;
+    --lumina-verde-claro: #BEBF9F;
+    --lumina-fundo: #F2F1F0;
+    --lumina-marrom: #735D43;
+    --lumina-bege: #D9B18F;
+
+    --lumina-branco: #FFFFFF;
+
+    --lumina-texto: #4E4A45;
+    --lumina-texto-suave: #77736D;
+
+    --lumina-sombra:
+        0 15px 40px rgba(115, 93, 67, 0.12);
+
+    --lumina-sombra-hover:
+        0 20px 50px rgba(115, 93, 67, 0.18);
+
+    --lumina-transicao:
+        all 0.3s ease;
+
+
+    /* Fundo geral */
+
+    min-height: 100vh;
+
+    background:
+        linear-gradient(
+            180deg,
+            #F2F1F0 0%,
+            #F7F6F4 100%
+        );
+
+    color: var(--lumina-texto);
+
+}
+
+
+/* ==================================================
+   TIPOGRAFIA
+================================================== */
+
+.lumina-page h1,
+.lumina-page h2 {
+
+    font-family: 'Poppins', sans-serif;
+
+    letter-spacing: 0;
+
+}
+
+
+/* ==================================================
+   TÍTULO PRINCIPAL
+================================================== */
+
+.lumina-page h1 {
+
+    max-width: 680px;
+
+    font-size: clamp(2.8rem, 5vw, 4.8rem);
+
+    font-weight: 700;
+
+    line-height: 1.08;
+
+    letter-spacing: -1.5px;
+
+    color: var(--lumina-marrom);
+
+}
+
+
+/* ==================================================
+   DESTAQUE "ILUMINA"
+================================================== */
+
+.lumina-page h1 span {
+
+    position: relative;
+
+    display: inline-block;
+
+    color: var(--lumina-verde);
+
+    background: transparent !important;
+
+    padding: 0 8px;
+
+    z-index: 1;
+
+}
+
+
+/* Marca decorativa atrás da palavra */
+
+.lumina-page h1 span::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    bottom: 7px;
+
+    width: 100%;
+    height: 32%;
+
+    background: var(--lumina-bege);
+
+    opacity: 0.55;
+
+    border-radius: 20px;
+
+    z-index: -1;
+
+}
+
+
+/* ==================================================
+   SUBTÍTULOS
+================================================== */
+
+.lumina-page h2 {
+
+    color: var(--lumina-marrom) !important;
+
+    font-weight: 600;
+
+}
+
+
+/* ==================================================
+   TEXTOS
+================================================== */
+
+.lumina-page .lead {
+
+    max-width: 600px;
+
+    color: var(--lumina-texto-suave) !important;
+
+    font-size: 1.1rem;
+
+    line-height: 1.8;
+
+}
+
+
+/* ==================================================
+   SEÇÕES
+================================================== */
+
+.lumina-page section {
+
+    position: relative;
+
+    padding: 5rem 0;
+
+}
+
+
+/* ==================================================
+   HERO
+================================================== */
+
+.lumina-page #inicio {
+
+    position: relative;
+
+    min-height: 85vh;
+
+    display: flex;
+
+    align-items: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #F2F1F0 0%,
+            #F8F7F4 55%,
+            #E5E4D8 100%
+        ) !important;
+
+    border-bottom: none !important;
+
+    overflow: hidden;
+
+}
+
+
+/* Círculo decorativo superior */
+
+.lumina-page #inicio::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 500px;
+    height: 500px;
+
+    top: -200px;
+    right: -150px;
+
+    border-radius: 50%;
+
+    background: var(--lumina-verde-claro);
+
+    opacity: 0.25;
+
+}
+
+
+/* Círculo decorativo inferior */
+
+.lumina-page #inicio::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 350px;
+    height: 350px;
+
+    bottom: -180px;
+    left: -120px;
+
+    border-radius: 50%;
+
+    background: var(--lumina-bege);
+
+    opacity: 0.18;
+
+}
+
+
+/* Conteúdo fica acima dos elementos decorativos */
+
+.lumina-page #inicio .container {
+
+    position: relative;
+
+    z-index: 2;
+
+}
+
+
+/* ==================================================
+   BOTÃO
+================================================== */
+
+.lumina-page #inicio .btn {
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 15px 32px;
+
+    border: none;
+
+    border-radius: 50px;
+
+    background: var(--lumina-verde);
+
+    color: var(--lumina-branco);
+
+    font-size: 1rem;
+
+    font-weight: 600;
+
+    text-decoration: none;
+
+    box-shadow:
+        0 10px 25px rgba(128, 140, 109, 0.25);
+
+    transition:
+        var(--lumina-transicao);
+
+}
+
+
+/* Hover do botão */
+
+.lumina-page #inicio .btn:hover {
+
+    background: var(--lumina-marrom);
+
+    color: var(--lumina-branco);
+
+    transform: translateY(-4px);
+
+    box-shadow:
+        var(--lumina-sombra-hover);
+
+}
+
+
+/* Ícone do botão */
+
+.lumina-page #inicio .btn i {
+
+    transition:
+        transform 0.3s ease;
+
+}
+
+
+.lumina-page #inicio .btn:hover i {
+
+    transform:
+        translateX(5px);
+
+}
+
+
+/* ==================================================
+   PREVIEW DO DASHBOARD
+================================================== */
+
+.lumina-page .lumina-preview {
+
+    position: relative;
+
+    padding: 10px;
+
+    border-radius: 28px !important;
+
+    background: var(--lumina-marrom) !important;
+
+    box-shadow:
+        0 25px 60px rgba(115, 93, 67, 0.22);
+
+    overflow: hidden;
+
+    transition:
+        var(--lumina-transicao);
+
+}
+
+
+/* Hover */
+
+.lumina-page .lumina-preview:hover {
+
+    transform:
+        translateY(-8px);
+
+    box-shadow:
+        0 35px 70px rgba(115, 93, 67, 0.28);
+
+}
+
+
+/* Imagem */
+
+.lumina-page .lumina-preview img {
+
+    border-radius: 20px;
+
+    transition:
+        transform 0.6s ease;
+
+}
+
+
+.lumina-page .lumina-preview:hover img {
+
+    transform:
+        scale(1.02);
+
+}
+
+
+/* ==================================================
+   CARD DE SEGURANÇA
+================================================== */
+
+.lumina-page .lumina-security-card {
+
+    max-width: 260px;
+
+    border-radius: 18px !important;
+
+    background:
+        rgba(255, 255, 255, 0.95) !important;
+
+    border:
+        1px solid rgba(128, 140, 109, 0.18) !important;
+
+    box-shadow:
+        var(--lumina-sombra) !important;
+
+    backdrop-filter:
+        blur(10px);
+
+}
+
+
+/* Ícone Bootstrap dentro do card */
+
+.lumina-page .lumina-security-card .bg-success-subtle {
+
+    background:
+        rgba(128, 140, 109, 0.15) !important;
+
+    color:
+        var(--lumina-verde) !important;
+
+}
+
+
+.lumina-page .lumina-security-card h6 {
+
+    color:
+        var(--lumina-marrom);
+
+}
+
+
+.lumina-page .lumina-security-card small {
+
+    color:
+        var(--lumina-texto-suave) !important;
+
+}
+
+
+/* ==================================================
+   SEÇÃO DE RECURSOS
+================================================== */
+
+.lumina-page section.bg-light {
+
+    background:
+        linear-gradient(
+            180deg,
+            #EAE9E2,
+            #F2F1F0
+        ) !important;
+
+    border: none !important;
+
+}
+
+
+/* ==================================================
+   ITENS DE RECURSOS
+================================================== */
+
+.lumina-page section.bg-light .border {
+
+    display: flex;
+
+    align-items: center;
+
+    background:
+        var(--lumina-branco);
+
+    color:
+        var(--lumina-marrom);
+
+    border:
+        1px solid rgba(128, 140, 109, 0.18) !important;
+
+    padding:
+        13px 22px !important;
+
+    border-radius:
+        50px !important;
+
+    font-weight:
+        600;
+
+    box-shadow:
+        0 8px 20px rgba(115, 93, 67, 0.08) !important;
+
+    transition:
+        var(--lumina-transicao);
+
+}
+
+
+/* Ícones dos recursos */
+
+.lumina-page section.bg-light .border i {
+
+    color:
+        var(--lumina-verde);
+
+    font-size:
+        1.1rem;
+
+}
+
+
+/* Hover */
+
+.lumina-page section.bg-light .border:hover {
+
+    background:
+        var(--lumina-verde);
+
+    color:
+        var(--lumina-branco);
+
+    border-color:
+        var(--lumina-verde) !important;
+
+    transform:
+        translateY(-4px);
+
+    box-shadow:
+        var(--lumina-sombra);
+
+}
+
+
+.lumina-page section.bg-light .border:hover i {
+
+    color:
+        var(--lumina-bege);
+
+}
+
+
+/* ==================================================
+   RESPONSIVIDADE
+================================================== */
+
+@media (max-width: 991px) {
+
+    .lumina-page #inicio {
+
+        min-height: auto;
+
+        text-align: center;
+
+    }
+
+
+    .lumina-page h1 {
+
+        margin-left: auto;
+        margin-right: auto;
+
+    }
+
+
+    .lumina-page .lead {
+
+        margin-left: auto;
+        margin-right: auto;
+
+    }
+
+
+    .lumina-page #inicio .d-flex {
+
+        justify-content: center;
+
+    }
+
+
+    .lumina-page .lumina-preview {
+
+        margin-top: 20px;
+
+    }
+
+}
+
+
+/* ==================================================
+   TABLET E MOBILE
+================================================== */
+
+@media (max-width: 768px) {
+
+    .lumina-page section {
+
+        padding: 3.5rem 0;
+
+    }
+
+
+    .lumina-page h1 {
+
+        font-size:
+            clamp(2.4rem, 9vw, 3.5rem);
+
+        letter-spacing:
+            -1px;
+
+    }
+
+
+    .lumina-page .lead {
+
+        font-size:
+            1rem;
+
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE PEQUENO
+================================================== */
+
+@media (max-width: 576px) {
+
+    .lumina-page #inicio {
+
+        padding-top:
+            4rem !important;
+
+        padding-bottom:
+            5rem !important;
+
+    }
+
+
+    .lumina-page #inicio .btn {
+
+        width:
+            100%;
+
+    }
+
+
+    .lumina-page .lumina-security-card {
+
+        max-width:
+            220px;
+
+    }
+
+
+    .lumina-page section.bg-light .border {
+
+        width:
+            100%;
+
+        justify-content:
+            center;
+
+    }
+
+
+    .lumina-page #inicio::before {
+
+        width:
+            300px;
+
+        height:
+            300px;
+
+    }
+
+}
+
+
+/* ==================================================
+   LOGIN - LUMINA
+   Identidade: Clínica • Acolhedora • Elegante
+================================================== */
+
+
+/* ==================================================
+   PÁGINA DE LOGIN
+================================================== */
+
+#Login.lumina-page {
+
+    position: relative;
+
+    min-height: 100vh;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--lumina-fundo) 0%,
+            #F7F6F2 50%,
+            #E4E5D9 100%
+        ) !important;
+
+    overflow: hidden;
+
+}
+
+
+/* ==================================================
+   ELEMENTOS DECORATIVOS
+================================================== */
+
+#Login.lumina-page::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 450px;
+
+    height: 450px;
+
+    top: -180px;
+
+    right: -120px;
+
+    border-radius: 50%;
+
+    background: var(--lumina-verde-claro);
+
+    opacity: 0.30;
+
+    z-index: 0;
+
+}
+
+
+#Login.lumina-page::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 350px;
+
+    height: 350px;
+
+    bottom: -150px;
+
+    left: -100px;
+
+    border-radius: 50%;
+
+    background: var(--lumina-bege);
+
+    opacity: 0.25;
+
+    z-index: 0;
+
+}
+
+
+/* ==================================================
+   CONTAINER
+================================================== */
+
+#Login.lumina-page > .container {
+
+    position: relative;
+
+    z-index: 1;
+
+}
+
+
+/* ==================================================
+   CARD
+================================================== */
+
+#Login .card {
+
+    position: relative;
+
+    border: 1px solid rgba(128, 140, 109, 0.18) !important;
+
+    border-radius: 28px !important;
+
+    background:
+        rgba(255, 255, 255, 0.92) !important;
+
+    box-shadow:
+        0 25px 70px rgba(115, 93, 67, 0.16) !important;
+
+    backdrop-filter:
+        blur(15px);
+
+    overflow: hidden;
+
+}
+
+
+/* Linha decorativa */
+
+#Login .card::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    width: 80px;
+
+    height: 5px;
+
+    background: var(--lumina-verde);
+
+    border-radius:
+        0 0 20px 20px;
+
+}
+
+
+/* ==================================================
+   CORPO DO CARD
+================================================== */
+
+#Login .card-body {
+
+    position: relative;
+
+    z-index: 1;
+
+}
+
+
+/* ==================================================
+   TÍTULO
+================================================== */
+
+#Login h2 {
+
+    color: var(--lumina-marrom) !important;
+
+    font-size:
+        clamp(1.8rem, 4vw, 2.4rem);
+
+    font-weight: 700 !important;
+
+}
+
+
+/* ==================================================
+   SUBTÍTULO
+================================================== */
+
+#Login .text-secondary {
+
+    color:
+        var(--lumina-texto-suave) !important;
+
+}
+
+
+/* ==================================================
+   LABELS
+================================================== */
+
+#Login .form-label {
+
+    color:
+        var(--lumina-marrom);
+
+    font-size:
+        0.95rem;
+
+    margin-bottom:
+        8px;
+
+}
+
+
+/* ==================================================
+   INPUTS
+================================================== */
+
+#Login .form-control {
+
+    min-height:
+        56px;
+
+    padding:
+        14px 18px;
+
+    border:
+        2px solid transparent !important;
+
+    border-radius:
+        14px !important;
+
+    background:
+        var(--lumina-fundo) !important;
+
+    color:
+        var(--lumina-texto);
+
+    box-shadow:
+        none !important;
+
+    transition:
+        all 0.3s ease;
+
+}
+
+
+/* FOCUS */
+
+#Login .form-control:focus {
+
+    background:
+        #FFFFFF !important;
+
+    border-color:
+        var(--lumina-verde) !important;
+
+    box-shadow:
+        0 0 0 4px rgba(128, 140, 109, 0.12) !important;
+
+}
+
+
+/* ==================================================
+   TEXTO DE AJUDA
+================================================== */
+
+#Login .form-text {
+
+    color:
+        var(--lumina-texto-suave) !important;
+
+}
+
+
+/* ==================================================
+   CHECKBOX - CÍRCULO PERSONALIZADO
+================================================== */
+
+#Login input[type="checkbox"] {
+
+    appearance: none !important;
+
+    -webkit-appearance: none !important;
+
+    -moz-appearance: none !important;
+
+    width: 22px !important;
+
+    height: 22px !important;
+
+    min-width: 22px !important;
+
+    min-height: 22px !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    border: 2px solid var(--lumina-verde) !important;
+
+    border-radius: 50% !important;
+
+    background-color: transparent !important;
+
+    cursor: pointer;
+
+    display: grid !important;
+
+    place-content: center;
+
+    position: relative;
+
+    box-shadow: none !important;
+
+    transition:
+        background-color 0.25s ease,
+        border-color 0.25s ease,
+        transform 0.2s ease;
+
+}
+
+
+/* ==================================================
+   CHECKBOX MARCADO
+================================================== */
+
+#Login input[type="checkbox"]:checked {
+
+    background-color:
+        var(--lumina-verde) !important;
+
+    border-color:
+        var(--lumina-verde) !important;
+
+}
+
+
+/* ==================================================
+   SINAL DE CHECK
+================================================== */
+
+#Login input[type="checkbox"]:checked::after {
+
+    content: "✓" !important;
+
+    display: block !important;
+
+    color: #FFFFFF !important;
+
+    font-size: 15px !important;
+
+    font-weight: 700 !important;
+
+    line-height: 1 !important;
+
+    position: absolute;
+
+    top: 50%;
+
+    left: 50%;
+
+    transform:
+        translate(-50%, -52%);
+
+}
+
+
+/* ==================================================
+   HOVER CHECKBOX
+================================================== */
+
+#Login input[type="checkbox"]:hover {
+
+    transform:
+        scale(1.05);
+
+}
+
+
+/* ==================================================
+   FOCUS CHECKBOX
+================================================== */
+
+#Login input[type="checkbox"]:focus {
+
+    outline:
+        none !important;
+
+    box-shadow:
+        0 0 0 4px rgba(128, 140, 109, 0.18) !important;
+
+}
+
+
+/* ==================================================
+   LABEL DO CHECKBOX
+================================================== */
+
+#Login .form-check-label {
+
+    color:
+        var(--lumina-texto-suave) !important;
+
+    font-size:
+        0.92rem;
+
+    cursor:
+        pointer;
+
+}
+
+
+/* ==================================================
+   BOTÃO
+================================================== */
+
+#Login .btn-primary {
+
+    min-height:
+        58px;
+
+    border:
+        none !important;
+
+    border-radius:
+        14px !important;
+
+    background:
+        var(--lumina-verde) !important;
+
+    color:
+        #FFFFFF !important;
+
+    font-size:
+        1rem;
+
+    box-shadow:
+        0 10px 25px rgba(128, 140, 109, 0.25);
+
+    transition:
+        all 0.3s ease;
+
+}
+
+
+/* HOVER BOTÃO */
+
+#Login .btn-primary:hover {
+
+    background:
+        var(--lumina-marrom) !important;
+
+    color:
+        #FFFFFF !important;
+
+    transform:
+        translateY(-3px);
+
+    box-shadow:
+        0 16px 35px rgba(115, 93, 67, 0.22);
+
+}
+
+
+/* CLICK BOTÃO */
+
+#Login .btn-primary:active {
+
+    transform:
+        translateY(-1px);
+
+}
+
+
+/* ==================================================
+   RESPONSIVIDADE
+================================================== */
+
+@media (max-width: 768px) {
+
+    #Login.lumina-page {
+
+        padding-left:
+            15px;
+
+        padding-right:
+            15px;
+
+    }
+
+
+    #Login .card {
+
+        border-radius:
+            22px !important;
+
+    }
+
+
+    #Login .card-body {
+
+        padding:
+            2rem !important;
+
+    }
+
+}
+
+
+@media (max-width: 576px) {
+
+    #Login .card-body {
+
+        padding:
+            1.8rem 1.5rem !important;
+
+    }
+
+
+    #Login .form-control {
+
+        min-height:
+            52px;
+
+    }
+
+
+    #Login .btn-primary {
+
+        min-height:
+            54px;
+
+    }
+
+
+    #Login.lumina-page::before {
+
+        width:
+            280px;
+
+        height:
+            280px;
+
+    }
+
+
+    #Login.lumina-page::after {
+
+        width:
+            230px;
+
+        height:
+            230px;
+
+    }
+
+}

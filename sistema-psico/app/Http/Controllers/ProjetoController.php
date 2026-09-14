@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Projeto;
+use App\Models\projeto;
 use Illuminate\Http\Request;
+use App\Http\Resources\ProjetoResource;
 
 class ProjetoController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-         return response()->json(projeto::all(),200);
+        $limit = $request ->input('limit',3);
+        //Buscamos os dados mais recentes registrados respeitando o lumite definido pelo usuário, tendo por padrão 5 requisicoes
+        $projetos = Projeto::latest()->take($limit) -> get();
+        return ProjetoResource::collection($projetos);
     }
 
     /**
@@ -20,7 +24,8 @@ class ProjetoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+         $projeto = Projeto::create($request->all());
+        return response()->json($projeto, 201);
     }
 
     /**
@@ -28,26 +33,29 @@ class ProjetoController extends Controller
      */
     public function show(Projeto $projeto)
     {
-         $paciente = Projeto::find($projeto->id);
+         $projeto = Projeto::find($projeto->id);
         return $projeto
-        ? response() -> json($paciente, 200)
-        : response()->json(['erro' => 'Projeto não encontrado'], 
-        404);
+        ? response()->json($projeto,200)
+        : response()->json(['erro' => 'Projeto não achaado'],404);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Projeto $projeto)
+    public function update(Request $request, projeto $projeto)
     {
-        //
+        $projeto =Projeto::findOrFail($projeto->id);
+        $projeto->update($request->all());
+        return response()->json($projeto, 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Projeto $projeto)
+    public function destroy(projeto $projeto)
     {
-        //
+        $projeto = Projeto::findOrFail($projeto->id);
+        $projeto->delete();
+        return response()->json(null,204);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Paciente;
 use Illuminate\Http\Request;
+use App\Http\Resources\PacienteResourse;
 
 class PacienteController extends Controller
 {
@@ -20,7 +21,8 @@ class PacienteController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $paciente = Paciente::create($request->all());
+        return response()->json($paciente, 201);
     }
 
     /**
@@ -40,7 +42,9 @@ class PacienteController extends Controller
      */
     public function update(Request $request, Paciente $paciente)
     {
-        //
+        $paciente =Paciente::findOrFail($paciente->id);
+        $paciente->update($request->all());
+        return response()->json($paciente, 200);
     }
 
     /**
@@ -48,6 +52,8 @@ class PacienteController extends Controller
      */
     public function destroy(Paciente $paciente)
     {
-        //
+        $paciente= Paciente::findOrFail($paciente->id);
+        $paciente->delete();
+        return response()->json(null,204);
     }
 }

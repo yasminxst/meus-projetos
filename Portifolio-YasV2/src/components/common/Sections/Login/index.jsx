@@ -1,8 +1,15 @@
-
+import { useNavigate } from "react-router";
 
 const LoginSection = () => {
+  const navigate = useNavigate();
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    navigate("/dashboard");
+  };
+
   return (
-    <section id="Login" className="container-fluid min-vh-100 d-flex align-items-center bg-light py-5">
+    <section id="Login" className="lumina-page container-fluid min-vh-100 d-flex align-items-center bg-light py-5">
       <div className="container">
         <div className="row justify-content-center">
           <div className="col-12 col-md-8 col-lg-5 col-xl-4">
@@ -17,7 +24,7 @@ const LoginSection = () => {
                   <p className="text-secondary small">Insira suas credenciais para continuar</p>
                 </div>
 
-                <form>
+                <form onSubmit={handleSubmit}>
                   <div className="mb-4">
                     <label htmlFor="exampleInputEmail1" className="form-label fw-medium">Email</label>
                     <input 

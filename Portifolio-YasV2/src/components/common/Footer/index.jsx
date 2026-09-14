@@ -8,11 +8,11 @@ const Footer = () => {
           <div className="row g-4 mb-4">
             <div className="col-lg-4">
               <a className="navbar-brand fw-bold text-white d-flex align-items-center gap-2 mb-3" href="#">
-                <i className="bi bi-stars text-success fs-4"></i>
-                <span>Yasmin Teixeira</span>
+                <i className="text-center bi bi-stars text-success fs-4"></i>
+                
               </a>
               <p className="small mb-3">
-                Meu trabalho eleva o seu
+                Yasmin Teixeira
               </p>
               
             </div>
@@ -38,7 +38,7 @@ const Footer = () => {
               <p className="small mb-3">Mande uma mensagem pelo WhatsApp e tenha mais informações</p>
               <div className="input-group mb-3">
                 <input  className="form-control rounded-start-pill" placeholder="Olá, me fale mais sobre seu trabalho?" aria-label="Seu e-mail" />
-                <button className="btn btn-success rounded-end-pill px-4" type="button">Enviar</button>
+                <a className="tex-white p-3 border rounded-1" href="https://wa.me/5531997234448?text=Ol%C3%A1%2C%20me%20fale%20mais%20sobre%20o%20seu%20trabalho">Enviar</a>
               </div>
             </div>
           </div>

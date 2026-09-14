@@ -1,5 +1,6 @@
 
 import LuminaSection from "../../../components/common/Sections/Lumina"
+import "./lumina.css"
 
 
 

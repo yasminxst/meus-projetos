@@ -1,29 +1,57 @@
-import {Link} from "react-router";
+
+import { Link } from "react-router";
 
 const NavBar = () => {
   return (
-    <>
-    <nav className="navbar navbar-expand-lg bg-body-tertiary">
-        <div className="container-fluid">
-            <Link className="navbar-brand" to="/" >Navbar</Link>
-            <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-            <span className="navbar-toggler-icon"></span>
-            </button>
+    <nav className="navbar navbar-expand-lg navbar-yasmin">
+      <div className="container">
+
+        {/* Logo / Nome */}
+        <Link className="navbar-brand logo-yasmin" to="/">
+          Yasmin <span>Teixeira</span>
+        </Link>
+
+        {/* Menu mobile */}
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNavAltMarkup"
+          aria-controls="navbarNavAltMarkup"
+          aria-expanded="false"
+          aria-label="Abrir menu"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+
+        {/* Links */}
         <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
-        <div className="navbar-nav">
-            <Link className="nav-link active" aria-current="page" to="/">Home</Link>
-            <Link className="nav-link" to="/lumina">
-            Lumina
+          <div className="navbar-nav ms-auto">
+
+            <Link className="nav-link nav-link-yasmin active" to="/">
+              Home
             </Link>
-            <Link className="nav-link" to="/login">
-             Login
+
+            <Link className="nav-link nav-link-yasmin" to="/lumina">
+              Lumina
             </Link>
+
+            <a
+              className="nav-button"
+              href="https://wa.me/5531997234448?text=Ol%C3%A1%2C%20me%20fale%20mais%20sobre%20o%20seu%20trabalho"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Vamos conversar
+            </a>
+
+          </div>
+        </div>
+
       </div>
-    </div>
-  </div>
-</nav>
-    </>
-  )
-}
+    </nav>
+  );
+};
 
 export default NavBar;
+

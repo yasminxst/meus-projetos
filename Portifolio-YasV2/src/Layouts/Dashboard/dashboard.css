@@ -1,0 +1,640 @@
+/* Container geral: define a paleta local, o layout principal e o fundo bege da area de conteudo. */
+.dashboard-shell {
+  --dashboard-ink: #735D43;
+  --dashboard-muted: #8f806e;
+  --dashboard-accent: #808C6D;
+  --dashboard-soft: #BEBF9F;
+  --dashboard-background: #F2F1F0;
+  --dashboard-page-background: #ece8e1;
+  --dashboard-detail: #D9B18F;
+  --dashboard-line: #d8d5c9;
+  font-family: Poppins, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  background: var(--dashboard-page-background);
+  color: var(--dashboard-ink);
+}
+
+/* Mantem titulos do dashboard independentes das regras tipograficas globais. */
+.dashboard-shell h1,
+.dashboard-shell h2,
+.dashboard-shell h3 {
+  color: var(--dashboard-ink);
+  font-family: Poppins, sans-serif;
+  line-height: 1.2;
+}
+
+/* Padroniza a cor dos textos corridos dentro do dashboard. */
+.dashboard-shell p {
+  color: var(--dashboard-muted);
+}
+
+/* Mantem campos de formulario com a mesma fonte e cor da interface. */
+.dashboard-shell input,
+.dashboard-shell textarea,
+.dashboard-shell select {
+  font-family: Poppins, sans-serif;
+  color: var(--dashboard-ink);
+}
+
+/* Define a aparencia da selecao de texto somente no dashboard. */
+.dashboard-shell ::selection {
+  color: #fff;
+  background: var(--dashboard-accent);
+}
+
+/* Barra lateral: abriga a marca, a navegacao e o perfil do usuario. */
+.dashboard-sidebar {
+  width: 252px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 18px 22px;
+  background: var(--dashboard-background);
+  border-right: 1px solid var(--dashboard-line);
+}
+
+/* Alinha horizontalmente os principais grupos de componentes da interface. */
+.dashboard-brand,
+.dashboard-profile-mini,
+.dashboard-nav-link,
+.dashboard-topbar,
+.dashboard-icon-button {
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-brand {
+  gap: 12px;
+  padding: 0 12px 38px;
+}
+
+/* Marca e avatar: elementos visuais de identificacao do workspace e do usuario. */
+.dashboard-brand-mark,
+.dashboard-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: var(--dashboard-background);
+  background: var(--dashboard-accent);
+  border-radius: 12px;
+  font-family: Georgia, serif;
+}
+
+/* Dimensoes e tipografia do simbolo da marca. */
+.dashboard-brand-mark {
+  width: 38px;
+  height: 38px;
+  font-size: 1.35rem;
+}
+
+/* Faz textos secundarios ocuparem sua propria linha. */
+.dashboard-brand strong,
+.dashboard-brand span,
+.dashboard-profile-mini strong,
+.dashboard-profile-mini span {
+  display: block;
+}
+
+/* Nome principal exibido na marca. */
+.dashboard-brand strong {
+  font-size: 1.05rem;
+  letter-spacing: .02em;
+}
+
+/* Texto auxiliar exibido abaixo da marca e do perfil. */
+.dashboard-brand div span,
+.dashboard-profile-mini div span {
+  color: var(--dashboard-muted);
+  font-size: .68rem;
+}
+
+/* Lista vertical dos links de navegacao da barra lateral. */
+.dashboard-navigation {
+  display: grid;
+  gap: 7px;
+}
+
+/* Rotulo pequeno que identifica a secao de navegacao. */
+.dashboard-navigation-label {
+  padding: 0 14px 10px;
+  color: var(--dashboard-muted);
+  font-size: .63rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+/* Link individual da navegacao, incluindo espacamento e estado de foco visual. */
+.dashboard-nav-link {
+  gap: 13px;
+  padding: 13px 14px;
+  color: var(--dashboard-muted);
+  border-radius: 10px;
+  font-size: .83rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: .2s ease;
+}
+
+/* Area reservada para os icones dos links, evitando mudanca de largura. */
+.dashboard-nav-link i {
+  width: 18px;
+  font-size: 1rem;
+  text-align: center;
+}
+
+/* Destaca o link ativo e fornece feedback ao passar o cursor. */
+.dashboard-nav-link:hover,
+.dashboard-nav-link.is-active {
+  color: var(--dashboard-accent);
+  background: var(--dashboard-soft);
+}
+
+/* Rodape da barra lateral com separador e perfil resumido. */
+.dashboard-sidebar-footer {
+  margin-top: auto;
+  padding: 20px 12px 0;
+  border-top: 1px solid var(--dashboard-line);
+}
+
+/* Organiza avatar, nome e funcao do usuario em uma linha. */
+.dashboard-profile-mini {
+  gap: 10px;
+}
+
+/* Tamanho do avatar exibido no rodape da barra lateral. */
+.dashboard-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: .95rem;
+}
+
+/* Nome do usuario no perfil resumido. */
+.dashboard-profile-mini strong {
+  font-size: .73rem;
+}
+
+/* Area de conteudo: ocupa todo o espaco restante ao lado da barra lateral. */
+.dashboard-main {
+  min-width: 0;
+  flex: 1;
+}
+
+/* Cabecalho superior com breadcrumb e acesso as notificacoes. */
+.dashboard-topbar {
+  justify-content: space-between;
+  min-height: 92px;
+  padding: 20px clamp(24px, 5vw, 66px);
+  background: rgba(242, 241, 240, .86);
+  border-bottom: 1px solid var(--dashboard-line);
+}
+
+/* Texto pequeno que identifica o contexto administrativo. */
+.dashboard-eyebrow {
+  color: var(--dashboard-accent);
+  font-size: .66rem;
+  font-weight: 600;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+/* Caminho hierarquico exibido abaixo do texto de contexto. */
+.dashboard-breadcrumb {
+  margin: 3px 0 0;
+  color: var(--dashboard-muted);
+  font-size: .78rem;
+}
+
+/* Separador visual entre os niveis do breadcrumb. */
+.dashboard-breadcrumb span {
+  padding: 0 7px;
+  color: var(--dashboard-detail);
+}
+
+/* Botao circular de notificacoes no cabecalho. */
+.dashboard-icon-button {
+  position: relative;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--dashboard-muted);
+  background: var(--dashboard-background);
+  border: 1px solid var(--dashboard-line);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Ponto que indica a existencia de uma notificacao. */
+.dashboard-notification-dot {
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  width: 5px;
+  height: 5px;
+  background: var(--dashboard-accent);
+  border: 1px solid var(--dashboard-background);
+  border-radius: 50%;
+}
+
+/* Area central que limita a largura e controla o espacamento das paginas. */
+.dashboard-content {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: clamp(28px, 5vw, 58px) clamp(24px, 5vw, 66px);
+}
+
+/* Layout compacto: transforma a barra lateral em uma barra superior rolavel. */
+@media (max-width: 720px) {
+  .dashboard-shell {
+    display: block;
+  }
+
+  .dashboard-sidebar {
+    width: 100%;
+    min-height: auto;
+    padding: 18px 16px 12px;
+  }
+
+  .dashboard-brand {
+    padding: 0 4px 18px;
+  }
+
+  .dashboard-navigation {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 3px;
+  }
+
+  .dashboard-navigation-label,
+  .dashboard-sidebar-footer {
+    display: none;
+  }
+
+  .dashboard-nav-link {
+    flex: 0 0 auto;
+    padding: 10px 12px;
+  }
+
+  .dashboard-nav-link span {
+    font-size: .75rem;
+  }
+
+  .dashboard-topbar {
+    min-height: 78px;
+    padding: 16px 22px;
+  }
+
+  .dashboard-content {
+    padding: 30px 20px 44px;
+  }
+}
+
+/* Cabecalho de cada pagina com titulo, contexto e acao principal. */
+.dashboard-page-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 38px;
+}
+
+/* Identificador pequeno exibido acima dos titulos de pagina e paineis. */
+.dashboard-kicker {
+  color: var(--dashboard-accent);
+  font-size: .67rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+/* Titulo principal da pagina e destaque colorido em partes do titulo. */
+.dashboard-page h1 {
+  margin: 7px 0 8px;
+  color: var(--dashboard-ink);
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  letter-spacing: -.03em;
+}
+
+/* Cor de destaque para palavras marcadas dentro do titulo. */
+.dashboard-page h1 span {
+  color: var(--dashboard-accent);
+}
+
+/* Texto descritivo apresentado abaixo do titulo da pagina. */
+.dashboard-page p {
+  margin: 0;
+  color: var(--dashboard-muted);
+  font-size: .83rem;
+}
+
+/* Base compartilhada dos botoes de acao do dashboard. */
+.dashboard-primary-button,
+.dashboard-secondary-button,
+.dashboard-filter-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 17px;
+  border: 0;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: .76rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+/* Botao para a acao principal da pagina. */
+.dashboard-primary-button {
+  color: var(--dashboard-background);
+  background: var(--dashboard-accent);
+  box-shadow: 0 7px 16px rgba(128, 140, 109, .24);
+}
+
+/* Feedback visual do botao principal ao passar o cursor. */
+.dashboard-primary-button:hover {
+  background: #687555;
+  color: var(--dashboard-background);
+  transform: translateY(-1px);
+}
+
+/* Botoes secundarios e de filtro usam o tom de apoio da paleta. */
+.dashboard-secondary-button,
+.dashboard-filter-button {
+  color: var(--dashboard-accent);
+  background: color-mix(in srgb, var(--dashboard-soft) 55%, var(--dashboard-background));
+}
+
+/* Grade dos indicadores numericos do resumo. */
+.dashboard-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 17px;
+  margin-bottom: 24px;
+}
+
+/* Cartoes reutilizados para indicadores e secoes de conteudo. */
+.dashboard-stat-card,
+.dashboard-panel {
+  background: var(--dashboard-background);
+  border: 1px solid var(--dashboard-line);
+  border-radius: 12px;
+}
+
+/* Estrutura interna de cada indicador numerico. */
+.dashboard-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-height: 126px;
+  padding: 21px;
+}
+
+/* Icone dos indicadores numericos. */
+.dashboard-stat-icon {
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  border-radius: 11px;
+  font-size: 1.05rem;
+}
+
+/* Variacoes cromaticas dos icones de indicador. */
+.dashboard-stat-icon.rose { color: #735D43; background: #ead9c9; }
+.dashboard-stat-icon.gold { color: #808C6D; background: #dfe1cd; }
+.dashboard-stat-icon.green { color: #687555; background: #d4dac6; }
+
+.dashboard-stat-card span,
+.dashboard-stat-card strong,
+.dashboard-stat-card small {
+  display: block;
+}
+
+.dashboard-stat-card span {
+  color: var(--dashboard-muted);
+  font-size: .7rem;
+}
+
+.dashboard-stat-card strong {
+  margin: 3px 0;
+  color: var(--dashboard-ink);
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.dashboard-stat-card small {
+  color: #687555;
+  font-size: .66rem;
+}
+
+/* Distribui os paineis de resumo entre grafico e atividade recente. */
+.dashboard-overview-grid {
+  display: grid;
+  grid-template-columns: 1.2fr .8fr;
+  gap: 17px;
+}
+
+/* Espaçamento interno padrao dos paineis. */
+.dashboard-panel {
+  padding: 25px;
+}
+
+/* Cabecalho dos paineis com titulo e acao contextual. */
+.dashboard-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Titulos secundarios dentro dos paineis. */
+.dashboard-panel h2 {
+  margin: 6px 0 0;
+  color: var(--dashboard-ink);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+/* Link de acesso a uma visualizacao mais completa do painel. */
+.dashboard-panel-heading > a {
+  color: var(--dashboard-accent);
+  font-size: .7rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Botoes discretos para opcoes e fechamento de dialogos. */
+.dashboard-more-button,
+.dashboard-close-button {
+  color: var(--dashboard-muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+/* Area reservada para o grafico de atendimentos. */
+.dashboard-chart-placeholder {
+  min-height: 222px;
+  padding-top: 5px;
+}
+
+/* Rotulo e valor principal exibidos acima das barras do grafico. */
+.dashboard-chart-labels {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+/* Estilos dos textos do resumo numerico do grafico. */
+.dashboard-chart-labels span { color: var(--dashboard-muted); font-size: .7rem; }
+.dashboard-chart-labels strong { color: var(--dashboard-ink); font-size: 1.2rem; font-weight: 600; }
+
+.dashboard-chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 13px;
+  height: 150px;
+  margin: 19px 0 9px;
+  padding: 0 7px;
+  border-bottom: 1px solid var(--dashboard-line);
+}
+
+/* Barras que representam os valores mensais do grafico. */
+.dashboard-chart-bars span {
+  flex: 1;
+  min-width: 8px;
+  background: var(--dashboard-detail);
+  border-radius: 5px 5px 0 0;
+}
+
+/* Realca meses especificos no grafico. */
+.dashboard-chart-bars span:nth-child(4),
+.dashboard-chart-bars span:last-child { background: var(--dashboard-accent); }
+
+.dashboard-chart-months {
+/* Meses exibidos no eixo inferior do grafico. */
+  display: flex;
+  justify-content: space-between;
+  color: var(--dashboard-muted);
+  font-size: .62rem;
+}
+
+/* Lista de atualizacoes e suas linhas individuais. */
+.dashboard-activity-list { display: grid; gap: 22px; }
+.dashboard-activity-list > div { display: flex; gap: 12px; align-items: flex-start; }
+.dashboard-activity-dot { width: 9px; height: 9px; margin-top: 5px; border-radius: 50%; flex: 0 0 auto; }
+.dashboard-activity-dot.rose { background: var(--dashboard-detail); }
+.dashboard-activity-dot.gold { background: var(--dashboard-accent); }
+.dashboard-activity-dot.green { background: #687555; }
+/* Texto e horario associados a cada atualizacao. */
+.dashboard-activity-list p { display: grid; gap: 3px; }
+.dashboard-activity-list strong { color: var(--dashboard-ink); font-size: .77rem; font-weight: 600; }
+.dashboard-activity-list small { color: var(--dashboard-muted); font-size: .67rem; }
+
+/* Layout da area de configuracoes, com menu lateral e formulario. */
+.dashboard-settings-grid { display: grid; grid-template-columns: 205px 1fr; gap: 17px; align-items: start; }
+/* Abas de configuracoes: Projetos compartilha o mesmo contexto do perfil. */
+.dashboard-settings-tabs { display: flex; gap: 4px; margin-bottom: 17px; padding: 7px; background: var(--dashboard-background); border: 1px solid var(--dashboard-line); border-radius: 10px; overflow-x: auto; }
+.dashboard-settings-tabs button { display: inline-flex; align-items: center; gap: 8px; flex: 0 0 auto; padding: 11px 14px; color: var(--dashboard-muted); background: transparent; border: 0; border-radius: 7px; cursor: pointer; font: inherit; font-size: .73rem; font-weight: 500; white-space: nowrap; }
+.dashboard-settings-tabs button:hover, .dashboard-settings-tabs button:focus-visible { color: var(--dashboard-accent); background: color-mix(in srgb, var(--dashboard-soft) 48%, var(--dashboard-background)); outline: none; }
+.dashboard-settings-tabs button.is-selected { color: var(--dashboard-accent); background: var(--dashboard-soft); font-weight: 600; }
+.dashboard-settings-projects { min-width: 0; }
+.dashboard-settings-projects .dashboard-page-heading { margin-bottom: 24px; }
+.dashboard-settings-projects .dashboard-page-heading h2 { margin: 6px 0 0; color: var(--dashboard-ink); font-size: 1.05rem; font-weight: 600; letter-spacing: -.02em; }
+/* Menu de secoes disponiveis nas configuracoes. */
+.dashboard-settings-menu { display: grid; gap: 4px; padding: 12px; }
+/* Botao de cada secao do menu de configuracoes. */
+.dashboard-settings-menu button { padding: 12px; color: var(--dashboard-muted); background: transparent; border: 0; border-radius: 7px; font: inherit; font-size: .74rem; text-align: left; cursor: pointer; }
+/* Icone e estado selecionado do menu de configuracoes. */
+.dashboard-settings-menu button i { width: 20px; margin-right: 7px; }
+.dashboard-settings-menu button.is-selected { color: var(--dashboard-accent); background: var(--dashboard-soft); font-weight: 600; }
+.dashboard-settings-form { min-height: 420px; }
+/* Linha com avatar, informacoes e acao para alterar a imagem. */
+.dashboard-form-avatar { display: flex; align-items: center; gap: 13px; padding: 19px 0; border-top: 1px solid var(--dashboard-line); border-bottom: 1px solid var(--dashboard-line); }
+.dashboard-form-avatar .dashboard-avatar { width: 48px; height: 48px; }
+.dashboard-avatar.large { font-size: 1.2rem; }
+.dashboard-form-avatar strong { display: block; color: var(--dashboard-ink); font-size: .76rem; }
+.dashboard-form-avatar p { font-size: .66rem; }
+.dashboard-form-avatar button { margin-left: auto; }
+/* Grade dos campos do formulario de configuracoes. */
+.dashboard-form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+/* Rotulo e campos individuais do formulario. */
+.dashboard-form-grid label { display: grid; gap: 7px; color: var(--dashboard-ink); font-size: .72rem; font-weight: 600; }
+.dashboard-form-grid input, .dashboard-form-grid textarea { min-height: 42px; padding: 10px 12px; color: var(--dashboard-ink); background: var(--dashboard-background); border: 1px solid var(--dashboard-line); border-radius: 7px; font: inherit; font-size: .74rem; }
+.dashboard-form-grid textarea { min-height: 95px; resize: vertical; }
+.dashboard-form-grid .full-width { grid-column: 1 / -1; }
+
+/* Painel de projetos sem preenchimento interno para acomodar a tabela. */
+.dashboard-projects-panel { padding: 0; overflow: hidden; }
+/* Barra da tabela com busca e filtro. */
+.dashboard-table-toolbar { display: flex; justify-content: space-between; gap: 12px; padding: 20px 24px; border-bottom: 1px solid var(--dashboard-line); }
+/* Campo de busca compacto da tabela. */
+.dashboard-search { display: flex; align-items: center; gap: 9px; width: min(270px, 100%); color: var(--dashboard-muted); }
+.dashboard-search input { width: 100%; padding: 7px 0; background: transparent; border: 0; outline: 0; font: inherit; font-size: .73rem; }
+/* Permite rolagem horizontal da tabela em telas estreitas. */
+.dashboard-table-wrap { overflow-x: auto; }
+/* Estrutura e tipografia da tabela de projetos. */
+.dashboard-table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: .73rem; }
+/* Cabecalho da tabela. */
+.dashboard-table th { padding: 14px 24px; color: var(--dashboard-muted); font-size: .63rem; font-weight: 600; text-align: left; text-transform: uppercase; letter-spacing: .08em; }
+/* Celulas de dados e separadores entre linhas. */
+.dashboard-table td { padding: 17px 24px; color: var(--dashboard-muted); border-top: 1px solid var(--dashboard-line); }
+/* Identificacao visual do projeto na primeira coluna. */
+.dashboard-project-name { display: flex; align-items: center; gap: 10px; color: var(--dashboard-ink); }
+.dashboard-project-name > span { display: grid; place-items: center; width: 31px; height: 31px; color: var(--dashboard-accent); background: var(--dashboard-soft); border-radius: 7px; font-family: Georgia, serif; font-size: 1rem; }
+.dashboard-project-name strong { font-weight: 600; }
+/* Etiquetas de status e seus indicadores circulares. */
+.dashboard-status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 20px; font-size: .64rem; }
+.dashboard-status i { width: 5px; height: 5px; border-radius: 50%; }
+.dashboard-status.published { color: #687555; background: #dfe1cd; }
+.dashboard-status.published i { background: #687555; }
+.dashboard-status.draft { color: #735D43; background: #ead9c9; }
+.dashboard-status.draft i { background: var(--dashboard-detail); }
+/* Grupo de acoes alinhado a direita em cada linha da tabela. */
+.dashboard-row-actions { display: flex; justify-content: flex-end; gap: 7px; min-width: 145px; }
+/* Botoes de editar e remover projetos, incluindo seus estados de hover. */
+.dashboard-row-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-width: 62px; height: 31px; padding: 0 8px; color: var(--dashboard-accent); background: var(--dashboard-background); border: 1px solid var(--dashboard-line); border-radius: 6px; cursor: pointer; font: inherit; font-size: .65rem; font-weight: 600; }
+.dashboard-row-actions button:last-child { color: var(--dashboard-ink); }
+.dashboard-row-actions button:hover { color: var(--dashboard-background); background: var(--dashboard-accent); border-color: var(--dashboard-accent); }
+.dashboard-row-actions button:last-child:hover { background: var(--dashboard-ink); border-color: var(--dashboard-ink); }
+
+/* Fundo semitransparente que cobre a pagina quando um modal esta aberto. */
+.dashboard-modal-backdrop { position: fixed; z-index: 10; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(115, 93, 67, .32); }
+/* Janela de criacao ou edicao de projeto. */
+.dashboard-modal { width: min(570px, 100%); padding: 28px; background: var(--dashboard-background); border-radius: 13px; box-shadow: 0 22px 60px rgba(115, 93, 67, .2); }
+/* Espaço entre o titulo do modal e seus campos. */
+.dashboard-modal .dashboard-form-grid { margin-top: 28px; }
+/* Acoes do formulario do modal alinhadas no final da janela. */
+.dashboard-modal-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 10px; padding-top: 8px; }
+
+/* Tablet: empilha os indicadores, paineis e configuracoes. */
+@media (max-width: 820px) {
+  .dashboard-stat-grid, .dashboard-overview-grid { grid-template-columns: 1fr; }
+  .dashboard-settings-grid { grid-template-columns: 1fr; }
+  .dashboard-settings-menu { display: flex; overflow-x: auto; }
+  .dashboard-settings-menu button { flex: 0 0 auto; }
+}
+
+/* Celular: reorganiza titulo, formulario, tabela e modal para telas pequenas. */
+@media (max-width: 560px) {
+  .dashboard-page-heading { display: grid; align-items: start; }
+  .dashboard-page-heading .dashboard-primary-button { width: 100%; }
+  .dashboard-panel { padding: 19px; }
+  .dashboard-form-grid { grid-template-columns: 1fr; }
+  .dashboard-form-grid .full-width { grid-column: auto; }
+  .dashboard-form-avatar { align-items: flex-start; flex-wrap: wrap; }
+  .dashboard-form-avatar button { width: 100%; margin-left: 61px; }
+  .dashboard-table-toolbar { padding: 16px 19px; }
+  .dashboard-modal { padding: 21px; }
+}
+
+

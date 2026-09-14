@@ -1,23 +1,528 @@
-/* 
- * Portfólio Yasmin Teixeira - Alto Padrão
- * Importação da fonte Poppins do Google Fonts
- */
+/*
+====================================================
+   PORTFÓLIO YASMIN TEIXEIRA
+   Estilo: Elegante • Feminino • Alto Padrão
+====================================================
+*/
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
+@import url('https://fonts.googleapis.com/css2?family=Monsieur+La+Doulaise&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+
+
+
+/* ==================================================
+   VARIÁVEIS
+================================================== */
+
 :root {
-  --cor-fundo: #EFEEDE; /* Creme claro suave para o fundo principal */
-  --cor-primaria: #678956; /* Verde musgo para botões e elementos principais */
-  --cor-secundaria: #99B082; /* Verde sálvia claro para detalhes e áreas de apoio */
-  --cor-destaque: #B37C52; /* Terracota quente para chamadas de ação e alertas */
-  --cor-texto: #624D39; /* Marrom escuro profundo para textos e alto contraste */
+
+    /* Paleta principal */
+    --rosa-claro: #D9C5D0;
+    --rosa-medio: #BFA3B2;
+    --rosa-escuro: #A66F89;
+    --roxo: #3A2440;
+
+    /* Neutros */
+    --branco: #F8F5F6;
+    --branco-puro: #FFFFFF;
+    --texto: #3A2440;
+    --texto-suave: #6F5B68;
+
+    /* Detalhes */
+    --dourado: #B89A68;
+
+    /* Sombras */
+    --sombra-suave: 0 10px 30px rgba(58, 36, 64, 0.08);
+    --sombra-media: 0 15px 40px rgba(58, 36, 64, 0.12);
+
+    /* Bordas */
+    --radius-pequeno: 10px;
+    --radius-medio: 18px;
+    --radius-grande: 30px;
+
+    /* Transição */
+    --transicao: all 0.3s ease;
 }
 
-  
 
+/* ==================================================
+   RESET
+================================================== */
 
-/* Ajustes Globais */
-body{
-
-  background-color: var(--cor-fundo);
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--branco);
+    color: var(--texto);
+    line-height: 1.7;
+    overflow-x: hidden;
+}
+
+
+/* ==================================================
+   SELEÇÃO DE TEXTO
+================================================== */
+
+::selection {
+    background-color: var(--rosa-escuro);
+    color: var(--branco-puro);
+}
+
+
+/* ==================================================
+   TIPOGRAFIA
+================================================== */
+
+h1,
+h2,
+h3 {
+    color: var(--roxo);
+    line-height: 1.2;
+}
+
+
+/* ==================================================
+   TÍTULOS SECUNDÁRIOS
+================================================== */
+
+h2 {
+    font-family: 'Poppins', sans-serif;
+
+    font-size: clamp(2rem, 4vw, 3rem);
+
+    font-weight: 600;
+
+    margin-bottom: 20px;
+}
+
+
+h3 {
+    font-family: 'Poppins', sans-serif;
+
+    font-size: 1.3rem;
+
+    font-weight: 600;
+}
+
+
+p {
+    color: var(--texto-suave);
+}
+
+
+/* ==================================================
+   LINKS
+    background: var(--rosa-escuro);
+
+    transition: var(--transicao);
+}
+
+
+.link:hover::after {
+    width: 100%;
+}
+
+
+/* ==================================================
+   IMAGENS
+================================================== */
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+
+.imagem-arredondada {
+    border-radius: var(--radius-grande);
+    box-shadow: var(--sombra-media);
+}
+
+
+/* ==================================================
+   FORMULÁRIO
+================================================== */
+
+input,
+textarea,
+select {
+    width: 100%;
+
+    padding: 14px 18px;
+
+    background: rgba(255, 255, 255, 0.8);
+
+    border: 1px solid rgba(166, 111, 137, 0.25);
+    border-radius: var(--radius-pequeno);
+
+    outline: none;
+
+    font-family: 'Poppins', sans-serif;
+    color: var(--texto);   
+    transition: var(--transicao);
+}
+
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--rosa-escuro);
+    box-shadow:
+        0 0 0 3px rgba(166, 111, 137, 0.12);
+}
+
+
+textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+
+/* ==================================================
+   FOOTER
+================================================== */
+
+footer {
+    position: relative;
+
+    padding: 60px 8% 30px;
+
+    background: linear-gradient(
+        135deg,
+        #3A2440,
+        #4B2D50
+    );
+
+    color: var(--branco-puro);
+
+    text-align: center;
+}
+
+
+footer p {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+
+footer a {
+    color: var(--rosa-claro);
+}
+
+
+footer a:hover {
+    color: var(--branco-puro);
+}
+
+
+/* ==================================================
+   REDES SOCIAIS
+================================================== */
+
+.social-links {
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin: 25px 0;
+}
+
+
+.social-links a {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    color: var(--branco-puro);
+    transition: var(--transicao);
+}
+
+
+.social-links a:hover {
+    background: var(--rosa-escuro);
+    border-color: var(--rosa-escuro);
+    transform: translateY(-4px);
+}
+
+
+/* ==================================================
+   ANIMAÇÃO SUAVE
+================================================== */
+
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* ==================================================
+   RESPONSIVIDADE
+================================================== */
+
+@media (max-width: 768px) {
+
+    .social-links {
+        gap: 10px;
+    }
+}
+
+
+@media (max-width: 480px) {
+
+}
+/* =========================================
+   NAVBAR YASMIN
+========================================= */
+
+.navbar-yasmin {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    min-height: 78px;
+
+    background: rgba(248, 245, 246, 0.92) !important;
+
+    border-bottom: 1px solid rgba(166, 111, 137, 0.12);
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    transition: all 0.3s ease;
+}
+
+
+/* Container */
+
+.navbar-yasmin .container {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+
+/* =========================================
+   LOGO
+========================================= */
+
+.logo-yasmin {
+    color: var(--roxo) !important;
+
+    font-size: 1.35rem;
+    font-weight: 600;
+
+    letter-spacing: -0.5px;
+
+    transition: all 0.3s ease;
+}
+
+.logo-yasmin span {
+    color: var(--rosa-escuro);
+    font-weight: 400;
+}
+
+.logo-yasmin:hover {
+    transform: translateY(-1px);
+}
+
+
+/* =========================================
+   LINKS
+========================================= */
+
+.navbar-yasmin .navbar-nav {
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-link-yasmin {
+    position: relative;
+    padding: 10px 16px !important;
+    color: var(--texto) !important;
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+
+/* Linha abaixo do link */
+
+.nav-link-yasmin::after {
+    content: "";
+
+    position: absolute;
+
+    left: 16px;
+    right: 16px;
+    bottom: 3px;
+    height: 2px;
+    background: var(--rosa-escuro);
+    border-radius: 10px;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.3s ease;
+}
+
+
+.nav-link-yasmin:hover {
+    color: var(--rosa-escuro) !important;
+}
+
+
+.nav-link-yasmin:hover::after,
+.nav-link-yasmin.active::after {
+    transform: scaleX(1);
+}
+
+
+.nav-link-yasmin.active {
+    color: var(--roxo) !important;
+    font-weight: 600;
+}
+
+
+/* =========================================
+   BOTÃO
+========================================= */
+
+.nav-button {
+    margin-left: 14px;
+    padding: 10px 20px;
+    border-radius: 50px;
+    background: var(--roxo);
+    color: var(--branco-puro);
+
+    font-size: 0.88rem;
+    font-weight: 500;
+    text-decoration: none;
+    box-shadow: 0 6px 18px rgba(58, 36, 64, 0.15);
+    transition: all 0.3s ease;
+}
+
+
+.nav-button:hover {
+    background: var(--rosa-escuro);
+    color: var(--branco-puro);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(58, 36, 64, 0.2);
+}
+
+
+/* =========================================
+   BOTÃO MOBILE
+========================================= */
+
+.navbar-toggler {
+    border: none !important;
+    padding: 8px;
+    box-shadow: none !important;
+}
+
+
+.navbar-toggler:focus {
+    box-shadow: none !important;
+}
+
+
+/* Ícone do menu */
+
+.navbar-toggler-icon {
+    width: 1.4em;
+    height: 1.4em;
+    background-image: none !important;
+    position: relative;
+}
+
+
+/* Criando o ícone com CSS */
+
+.navbar-toggler-icon::before,
+.navbar-toggler-icon::after {
+    content: "";
+
+    position: absolute;
+    left: 0;
+
+    width: 100%;
+    height: 2px;
+
+    background: var(--roxo);
+    border-radius: 10px;
+}
+
+
+.navbar-toggler-icon::before {
+    top: 4px;
+    box-shadow: 0 7px 0 var(--roxo);
+}
+
+
+.navbar-toggler-icon::after {
+    bottom: 3px;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 991px) {
+
+    .navbar-yasmin {
+        min-height: 70px;
+    }
+
+    .navbar-yasmin .navbar-collapse {
+        margin-top: 15px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(166, 111, 137, 0.12);
+        border-radius: 18px;
+        box-shadow: var(--sombra-suave);
+    }
+
+    .navbar-yasmin .navbar-nav {
+        align-items: stretch;
+        gap: 4px;
+    }
+
+    .nav-link-yasmin {
+        padding: 12px 15px !important;
+    }
+
+    .nav-link-yasmin::after {
+        display: none;
+    }
+
+    .nav-link-yasmin:hover,
+    .nav-link-yasmin.active {
+        background: var(--rosa-claro);
+        border-radius: 10px;
+    }
+
+    .nav-button {
+        display: block;
+        margin: 10px 0 0;
+        text-align: center;
+    }
+}

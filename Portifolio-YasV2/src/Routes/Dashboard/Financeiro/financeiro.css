@@ -1,0 +1,489 @@
+/* Financeiro: camada visual local alinhada ao sistema do dashboard. */
+.financeiro-page {
+  --financeiro-ink: var(--dashboard-ink, #735d43);
+  --financeiro-muted: var(--dashboard-muted, #8f806e);
+  --financeiro-accent: var(--dashboard-accent, #808c6d);
+  --financeiro-soft: var(--dashboard-soft, #bebf9f);
+  --financeiro-paper: var(--dashboard-background, #f2f1f0);
+  --financeiro-line: var(--dashboard-line, #d8d5c9);
+  --financeiro-detail: var(--dashboard-detail, #d9b18f);
+}
+
+.financeiro-page-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.financeiro-page-heading h1 {
+  margin: 7px 0 8px;
+  color: var(--financeiro-ink);
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  letter-spacing: -.03em;
+}
+
+.financeiro-page-heading h1 span {
+  color: var(--financeiro-accent);
+}
+
+.financeiro-page-heading p {
+  margin: 0;
+  color: var(--financeiro-muted);
+  font-size: .83rem;
+}
+
+.financeiro-period-control {
+  display: grid;
+  gap: 6px;
+  min-width: 155px;
+}
+
+.financeiro-period-control label,
+.financeiro-form label {
+  color: var(--financeiro-muted);
+  font-size: .65rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.financeiro-period-control select,
+.financeiro-form input,
+.financeiro-form select {
+  min-height: 42px;
+  padding: 9px 12px;
+  color: var(--financeiro-ink);
+  background: var(--financeiro-paper);
+  border: 1px solid var(--financeiro-line);
+  border-radius: 7px;
+  font: inherit;
+  font-size: .75rem;
+}
+
+.financeiro-period-control select:focus,
+.financeiro-form input:focus,
+.financeiro-form select:focus {
+  border-color: var(--financeiro-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--financeiro-accent) 18%, transparent);
+  outline: none;
+}
+
+/* Os tres indicadores principais deixam a leitura financeira imediata. */
+.financeiro-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 17px;
+  margin-bottom: 24px;
+}
+
+.financeiro-stat-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-height: 126px;
+  padding: 21px;
+  background: var(--financeiro-paper);
+  border: 1px solid var(--financeiro-line);
+  border-radius: 12px;
+}
+
+.financeiro-stat-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  color: var(--financeiro-accent);
+  background: var(--financeiro-soft);
+  border-radius: 11px;
+  font-size: 1rem;
+}
+
+.financeiro-stat-card:nth-child(2) .financeiro-stat-icon {
+  color: #a0785b;
+  background: #ead9c9;
+}
+
+.financeiro-stat-card:nth-child(3) .financeiro-stat-icon {
+  color: #687555;
+  background: #d4dac6;
+}
+
+.financeiro-stat-card span,
+.financeiro-stat-card strong,
+.financeiro-stat-card small {
+  display: block;
+}
+
+.financeiro-stat-card span {
+  color: var(--financeiro-muted);
+  font-size: .7rem;
+}
+
+.financeiro-stat-card strong {
+  margin: 5px 0 3px;
+  color: var(--financeiro-ink);
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.financeiro-stat-card small {
+  color: var(--financeiro-muted);
+  font-size: .65rem;
+}
+
+.financeiro-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(290px, .75fr);
+  gap: 17px;
+  margin-bottom: 17px;
+}
+
+.financeiro-panel {
+  min-width: 0;
+  padding: 25px;
+  background: var(--financeiro-paper);
+  border: 1px solid var(--financeiro-line);
+  border-radius: 12px;
+}
+
+.financeiro-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.financeiro-panel-heading h2 {
+  margin: 6px 0 0;
+  color: var(--financeiro-ink);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+.financeiro-panel-heading p {
+  margin: 5px 0 0;
+  color: var(--financeiro-muted);
+  font-size: .7rem;
+}
+
+.financeiro-month-total {
+  color: var(--financeiro-accent);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+/* Barras proporcionais mostram a evolucao do lucro bruto em cada mes. */
+.financeiro-chart {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 10px;
+  height: 225px;
+  padding: 16px 4px 0;
+  border-bottom: 1px solid var(--financeiro-line);
+}
+
+.financeiro-chart-column {
+  display: grid;
+  grid-template-rows: 18px minmax(0, 1fr) 20px;
+  height: 100%;
+  min-width: 0;
+  align-items: end;
+}
+
+.financeiro-chart-value {
+  width: 100%;
+  overflow: hidden;
+  color: var(--financeiro-muted);
+  font-size: .55rem;
+  line-height: 18px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.financeiro-chart-track {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.financeiro-chart-bar {
+  width: min(100%, 33px);
+  min-height: 5px;
+  background: var(--financeiro-detail);
+  border-radius: 5px 5px 0 0;
+  transition: .25s ease;
+}
+
+.financeiro-chart-column.is-selected .financeiro-chart-bar {
+  background: var(--financeiro-accent);
+}
+
+.financeiro-chart-column button {
+  width: 100%;
+  overflow: hidden;
+  padding: 0;
+  color: var(--financeiro-muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: .63rem;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.financeiro-chart-column button:hover,
+.financeiro-chart-column button:focus-visible,
+.financeiro-chart-column.is-selected button {
+  color: var(--financeiro-accent);
+  font-weight: 700;
+  outline: none;
+}
+
+.financeiro-month-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.financeiro-month-summary div {
+  display: grid;
+  gap: 3px;
+  padding: 12px;
+  background: color-mix(in srgb, var(--financeiro-soft) 32%, var(--financeiro-paper));
+  border-radius: 8px;
+}
+
+.financeiro-month-summary span {
+  color: var(--financeiro-muted);
+  font-size: .62rem;
+}
+
+.financeiro-month-summary strong {
+  color: var(--financeiro-ink);
+  font-size: .78rem;
+  font-weight: 600;
+}
+
+.financeiro-control-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.financeiro-control-panel .dashboard-primary-button {
+  width: 100%;
+  margin-top: auto;
+}
+
+.financeiro-control-copy {
+  margin: -10px 0 22px;
+  color: var(--financeiro-muted);
+  font-size: .72rem;
+  line-height: 1.6;
+}
+
+.financeiro-form {
+  display: grid;
+  gap: 15px;
+}
+
+.financeiro-form label {
+  display: grid;
+  gap: 7px;
+}
+
+.financeiro-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.financeiro-stepper {
+  display: grid;
+  grid-template-columns: 34px 1fr 34px;
+  gap: 5px;
+}
+
+.financeiro-stepper button {
+  color: var(--financeiro-accent);
+  background: var(--financeiro-soft);
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.financeiro-stepper button:hover,
+.financeiro-stepper button:focus-visible {
+  color: var(--financeiro-paper);
+  background: var(--financeiro-accent);
+  outline: none;
+}
+
+.financeiro-stepper input {
+  text-align: center;
+}
+
+.financeiro-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.financeiro-actions button {
+  flex: 1;
+}
+
+.financeiro-danger-button {
+  min-height: 42px;
+  padding: 0 14px;
+  color: #a0785b;
+  background: transparent;
+  border: 1px solid #dec3ae;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-size: .7rem;
+  font-weight: 600;
+}
+
+.financeiro-danger-button:hover,
+.financeiro-danger-button:focus-visible {
+  color: #fff;
+  background: #a0785b;
+  border-color: #a0785b;
+  outline: none;
+}
+
+.financeiro-table-panel {
+  padding: 0;
+  overflow: hidden;
+}
+
+.financeiro-table-wrap {
+  overflow-x: auto;
+}
+
+.financeiro-table {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+  font-size: .72rem;
+}
+
+.financeiro-table th {
+  padding: 15px 24px;
+  color: var(--financeiro-muted);
+  font-size: .61rem;
+  font-weight: 600;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.financeiro-table td {
+  padding: 16px 24px;
+  color: var(--financeiro-muted);
+  border-top: 1px solid var(--financeiro-line);
+}
+
+.financeiro-table td strong {
+  color: var(--financeiro-ink);
+  font-weight: 600;
+}
+
+.financeiro-table .financeiro-positive {
+  color: #687555;
+  font-weight: 600;
+}
+
+.financeiro-table .financeiro-negative {
+  color: #a0785b;
+  font-weight: 600;
+}
+
+.financeiro-table .financeiro-selected-row td {
+  background: color-mix(in srgb, var(--financeiro-soft) 24%, var(--financeiro-paper));
+}
+
+.financeiro-table .financeiro-row-action {
+  padding: 0;
+  color: var(--financeiro-accent);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: .68rem;
+  font-weight: 600;
+}
+
+.financeiro-table .financeiro-row-action:hover,
+.financeiro-table .financeiro-row-action:focus-visible {
+  color: var(--financeiro-ink);
+  text-decoration: underline;
+  outline: none;
+}
+
+@media (max-width: 900px) {
+  .financeiro-stat-grid,
+  .financeiro-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .financeiro-control-panel .dashboard-primary-button {
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 560px) {
+  .financeiro-page-heading {
+    display: grid;
+    align-items: start;
+  }
+
+  .financeiro-period-control {
+    width: 100%;
+  }
+
+  .financeiro-stat-grid {
+    gap: 12px;
+  }
+
+  .financeiro-stat-card {
+    min-height: 105px;
+    padding: 17px;
+  }
+
+  .financeiro-panel {
+    padding: 19px;
+  }
+
+  .financeiro-month-summary,
+  .financeiro-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .financeiro-chart {
+    gap: 5px;
+  }
+
+  .financeiro-chart-column {
+    grid-template-rows: 0 minmax(0, 1fr) 20px;
+  }
+
+  .financeiro-chart-value {
+    display: none;
+  }
+}
