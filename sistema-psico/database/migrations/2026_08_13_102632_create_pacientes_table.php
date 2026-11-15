@@ -15,8 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('nome');
             $table->string('sobrenome');
-            $table->string('endereco');
-            $table->date('data_nascimento');
+            $table->string('status')->default('ativo'); // 'ativo' ou 'inativo'
+            $table->string('telefone')->nullable();
+            $table->string('email')->nullable();
+            $table->string('endereco')->nullable();
+            $table->date('data_nascimento')->nullable();
             $table->timestamps();
         });
     }

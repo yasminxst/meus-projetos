@@ -17,6 +17,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            // Campos do perfil profissional do psicólogo
+            $table->string('telefone')->nullable();
+            $table->string('crp')->nullable(); // Ex: 06/123456
+            $table->text('bio')->nullable(); // Apresentação / especialidade
+            $table->text('foto_perfil')->nullable(); // URL ou base64 da foto
             $table->rememberToken();
             $table->timestamps();
         });
