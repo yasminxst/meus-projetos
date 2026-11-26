@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\ResolvesUserContext;
 use App\Models\Agendamento;
 use App\Models\Paciente;
 use Carbon\Carbon;
@@ -11,110 +12,112 @@ use Illuminate\Http\Request;
 /**
  * Controller do Dashboard Lumina (DashboardController)
  * 
- * Fornece os dados consolidados do ambiente geral do consultório:
- * 1. Pacientes ativos (status = 'ativo' no cadastro de pacientes).
- * 2. Consultas agendadas para o dia atual (status = 'agendado' e data = hoje).
- * 3. Atendimentos realizados no mês (status = 'realizado' no mês corrente).
- * 4. Total de atendimentos realizados no ano (status = 'realizado' no ano corrente).
- * 
- * E a seção de últimas atualizações:
- * - Próximos atendimentos (ordem cronológica futura).
- * - Eventos adicionados recentemente.
- * - Alterações recentes na agenda.
+ * Fornece os indicadores e notificações consolidadas do ambiente do consultório:
+ * 1. Pacientes ativos (status = 'ativo' do profissional).
+ * 2. Consultas agendadas para o dia atual (data = hoje, status = 'agendado').
+ * 3. Agendamentos do mês (todas as consultas marcadas no mês corrente).
+ * 4. Atendimentos no ano (consultas realizadas no ano corrente).
+ * 5. Notificações e alertas sobre próximos horários.
  */
 class DashboardController extends Controller
 {
+    use ResolvesUserContext;
+
     /**
-     * Retorna os indicadores e as atualizações consolidadas do Dashboard.
+     * Retorna os 4 indicadores e as atualizações consolidadas do Dashboard.
      */
     public function stats(Request $request): JsonResponse
     {
+        $userId = $this->getTargetUserId($request);
         $hoje = Carbon::today()->format('Y-m-d');
         $mesAtual = Carbon::today()->month;
         $anoAtual = Carbon::today()->year;
 
-        // 1. Pacientes Ativos (regra: apenas status = 'ativo')
-        $pacientesAtivos = Paciente::where('status', 'ativo')->count();
+        // 1. Pacientes Ativos
+        $pacientesAtivos = Paciente::where('user_id', $userId)
+            ->where('status', 'ativo')
+            ->count();
 
-        // 2. Consultas agendadas para o dia atual (apenas status = 'agendado')
-        $consultasHoje = Agendamento::whereDate('data', $hoje)
+        // 2. Consultas do dia (hoje e agendado)
+        $consultasHoje = Agendamento::where('user_id', $userId)
+            ->whereDate('data', $hoje)
             ->where('status', 'agendado')
             ->count();
 
-        // 3. Atendimentos realizados no mês (apenas status = 'realizado', cancelados não contam!)
-        $atendimentosMes = Agendamento::whereMonth('data', $mesAtual)
+        // 3. Agendamentos no mês corrente (total de consultas marcadas)
+        $agendamentosMes = Agendamento::where('user_id', $userId)
+            ->whereMonth('data', $mesAtual)
+            ->whereYear('data', $anoAtual)
+            ->count();
+
+        // 4. Atendimentos realizados no ano
+        $atendimentosAno = Agendamento::where('user_id', $userId)
             ->whereYear('data', $anoAtual)
             ->where('status', 'realizado')
             ->count();
 
-        // 4. Total de atendimentos realizados no ano (apenas status = 'realizado')
-        $atendimentosAno = Agendamento::whereYear('data', $anoAtual)
-            ->where('status', 'realizado')
-            ->count();
-
         // --- ÚLTIMAS ATUALIZAÇÕES DA AGENDA ---
-
-        // A. Próximos atendimentos a partir de hoje em ordem cronológica
-        $proximosAtendimentos = Agendamento::where('data', '>=', $hoje)
+        $proximosAtendimentos = Agendamento::with('paciente')
+            ->where('user_id', $userId)
+            ->where('data', '>=', $hoje)
             ->where('status', 'agendado')
             ->orderBy('data', 'asc')
             ->orderBy('horario_inicio', 'asc')
+            ->take(6)
+            ->get();
+
+        $eventosRecentes = Agendamento::with('paciente')
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
 
-        // B. Eventos adicionados recentemente (últimos criados)
-        $eventosRecentes = Agendamento::latest('created_at')
-            ->take(5)
-            ->get();
-
-        // C. Alterações recentes na agenda (últimos modificados)
-        $alteracoesRecentes = Agendamento::latest('updated_at')
+        $alteracoesRecentes = Agendamento::with('paciente')
+            ->where('user_id', $userId)
+            ->orderBy('updated_at', 'desc')
             ->take(5)
             ->get();
 
         return response()->json([
-            'indicadores' => [
-                'pacientes_ativos' => $pacientesAtivos,
-                'consultas_hoje' => $consultasHoje,
-                'atendimentos_mes' => $atendimentosMes,
-                'atendimentos_ano' => $atendimentosAno,
-            ],
-            // Formato amigável em cards para compatibilidade visual direta
+            'pacientes_ativos' => $pacientesAtivos,
+            'consultas_hoje' => $consultasHoje,
+            'agendamentos_mes' => $agendamentosMes,
+            'atendimentos_ano' => $atendimentosAno,
             'cards' => [
                 [
                     'id' => 'pacientes_ativos',
-                    'label' => 'Pacientes Ativos',
+                    'label' => 'Pacientes ativos',
                     'value' => (string) $pacientesAtivos,
                     'icon' => 'patients',
                     'tone' => 'rose',
-                    'change' => 'Cadastrados no consultório',
+                    'change' => 'Cadastrados no seu consultório',
                 ],
                 [
                     'id' => 'consultas_hoje',
-                    'label' => 'Consultas Hoje',
+                    'label' => 'Consultas hoje',
                     'value' => (string) $consultasHoje,
                     'icon' => 'calendar',
                     'tone' => 'gold',
                     'change' => 'Agendadas para hoje',
                 ],
                 [
-                    'id' => 'atendimentos_mes',
-                    'label' => 'Atendimentos no Mês',
-                    'value' => (string) $atendimentosMes,
+                    'id' => 'agendamentos_mes',
+                    'label' => 'Agendamentos no mês',
+                    'value' => (string) $agendamentosMes,
                     'icon' => 'care',
                     'tone' => 'green',
-                    'change' => 'Realizados este mês',
+                    'change' => 'Marcados neste mês',
                 ],
                 [
                     'id' => 'atendimentos_ano',
-                    'label' => 'Atendimentos no Ano',
+                    'label' => 'Atendimentos no ano',
                     'value' => (string) $atendimentosAno,
                     'icon' => 'annual',
                     'tone' => 'gold',
-                    'change' => 'Total realizado em ' . $anoAtual,
+                    'change' => 'Realizados em ' . $anoAtual,
                 ],
             ],
-            'ultimas_atualizacoes' => [
+            'updates' => [
                 'proximos_atendimentos' => $proximosAtendimentos,
                 'eventos_recentes' => $eventosRecentes,
                 'alteracoes_recentes' => $alteracoesRecentes,
@@ -123,21 +126,31 @@ class DashboardController extends Controller
     }
 
     /**
-     * Endpoint específico para as últimas atualizações da agenda.
+     * Retorna os alertas de compromissos imediatos e próximos horários para o sino/notificações.
      */
-    public function updates(): JsonResponse
+    public function alertas(Request $request): JsonResponse
     {
+        $userId = $this->getTargetUserId($request);
         $hoje = Carbon::today()->format('Y-m-d');
+        $agoraHora = Carbon::now()->format('H:i');
+
+        // Consultas de hoje agendadas
+        $consultasHoje = Agendamento::with('paciente')
+            ->where('user_id', $userId)
+            ->whereDate('data', $hoje)
+            ->where('status', 'agendado')
+            ->orderBy('horario_inicio', 'asc')
+            ->get();
+
+        // Próxima consulta imediata (primeira após o horário atual)
+        $proximaImediata = $consultasHoje->first(function ($c) use ($agoraHora) {
+            return $c->horario_inicio >= $agoraHora;
+        }) ?? $consultasHoje->first();
 
         return response()->json([
-            'proximos_atendimentos' => Agendamento::where('data', '>=', $hoje)
-                ->where('status', 'agendado')
-                ->orderBy('data', 'asc')
-                ->orderBy('horario_inicio', 'asc')
-                ->take(6)
-                ->get(),
-            'eventos_recentes' => Agendamento::latest('created_at')->take(6)->get(),
-            'alteracoes_recentes' => Agendamento::latest('updated_at')->take(6)->get(),
+            'total_hoje' => $consultasHoje->count(),
+            'proxima_consulta' => $proximaImediata,
+            'alertas' => $consultasHoje,
         ], 200);
     }
 }

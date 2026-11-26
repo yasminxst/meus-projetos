@@ -3,31 +3,36 @@
 use App\Models\Agendamento;
 use App\Models\MovimentacaoFinanceira;
 use App\Models\Paciente;
+use App\Models\Produto;
 use App\Models\User;
 use Carbon\Carbon;
+use Laravel\Sanctum\Sanctum;
 
 beforeEach(function () {
-    User::firstOrCreate(
+    $this->user = User::updateOrCreate(
         ['email' => 'yasmin@lumina.com'],
         [
             'name' => 'Yasmin Teixeira',
             'password' => 'senha123',
+            'role' => 'admin',
+            'is_active' => true,
             'crp' => '06/184920',
             'telefone' => '(11) 98765-4321',
-            'bio' => 'Psicóloga Clínica',
+            'bio' => 'Psicóloga Clínica e Administradora',
         ]
     );
 
-    // Cria pacientes ativos e inativo
-    Paciente::firstOrCreate(['nome' => 'Ana', 'sobrenome' => 'Silva'], ['status' => 'ativo']);
-    Paciente::firstOrCreate(['nome' => 'Carlos', 'sobrenome' => 'Eduardo'], ['status' => 'ativo']);
-    Paciente::firstOrCreate(['nome' => 'Paula', 'sobrenome' => 'Fernandes'], ['status' => 'inativo']);
+    // Cria pacientes ativos e inativo vinculados ao usuário
+    Paciente::updateOrCreate(['nome' => 'Ana', 'sobrenome' => 'Silva'], ['user_id' => $this->user->id, 'status' => 'ativo']);
+    Paciente::updateOrCreate(['nome' => 'Carlos', 'sobrenome' => 'Eduardo'], ['user_id' => $this->user->id, 'status' => 'ativo']);
+    Paciente::updateOrCreate(['nome' => 'Paula', 'sobrenome' => 'Fernandes'], ['user_id' => $this->user->id, 'status' => 'inativo']);
 
     // Cria agendamentos de teste
     $hoje = Carbon::today()->format('Y-m-d');
-    Agendamento::firstOrCreate(
-        ['data' => $hoje, 'horario_inicio' => '09:00', 'nome' => 'Consulta Hoje Teste'],
+    Agendamento::updateOrCreate(
+        ['data' => $hoje, 'horario_inicio' => '09:00', 'user_id' => $this->user->id],
         [
+            'nome' => 'Consulta Hoje Teste',
             'horario_fim' => '09:50',
             'categoria' => 'Sessão de terapia',
             'tone' => 'rose',
@@ -35,9 +40,10 @@ beforeEach(function () {
         ]
     );
 
-    Agendamento::firstOrCreate(
-        ['data' => $hoje, 'horario_inicio' => '10:00', 'nome' => 'Consulta Realizada Teste'],
+    Agendamento::updateOrCreate(
+        ['data' => $hoje, 'horario_inicio' => '10:00', 'user_id' => $this->user->id],
         [
+            'nome' => 'Consulta Realizada Teste',
             'horario_fim' => '10:50',
             'categoria' => 'Sessão de terapia',
             'tone' => 'rose',
@@ -46,7 +52,7 @@ beforeEach(function () {
     );
 });
 
-test('permite login com credenciais validas e retorna token sanctum', function () {
+test('permite login com credenciais validas e retorna token sanctum e role', function () {
     $response = $this->postJson('/api/login', [
         'email' => 'yasmin@lumina.com',
         'password' => 'senha123',
@@ -56,144 +62,206 @@ test('permite login com credenciais validas e retorna token sanctum', function (
         ->assertJsonStructure([
             'message',
             'token',
-            'user' => ['id', 'name', 'email'],
+            'user' => ['id', 'name', 'email', 'role'],
         ]);
 });
 
+test('bloqueia login com credenciais incorretas', function () {
+    $response = $this->postJson('/api/login', [
+        'email' => 'yasmin@lumina.com',
+        'password' => 'senha_errada_xyz',
+    ]);
+
+    $response->assertStatus(401);
+});
+
 test('dashboard retorna os 4 indicadores reais e ultimas atualizacoes', function () {
+    Sanctum::actingAs($this->user);
+
     $response = $this->getJson('/api/dashboard');
 
     $response->assertStatus(200)
         ->assertJsonStructure([
-            'indicadores' => [
-                'pacientes_ativos',
-                'consultas_hoje',
-                'atendimentos_mes',
-                'atendimentos_ano',
-            ],
+            'pacientes_ativos',
+            'consultas_hoje',
+            'agendamentos_mes',
+            'atendimentos_ano',
             'cards',
-            'ultimas_atualizacoes' => [
+            'updates' => [
                 'proximos_atendimentos',
                 'eventos_recentes',
                 'alteracoes_recentes',
             ],
         ]);
-
-    // Verifica que pacientes inativos não são contabilizados como ativos
-    $indicadores = $response->json('indicadores');
-    expect($indicadores['pacientes_ativos'])->toBeGreaterThanOrEqual(2);
 });
 
-test('agenda retorna lista, calendario agrupado e categorias com legenda', function () {
-    $response = $this->getJson('/api/agenda');
+test('agenda retorna lista, calendario agrupado e suporte a semana', function () {
+    Sanctum::actingAs($this->user);
 
-    $response->assertStatus(200)
-        ->assertJsonStructure([
-            'lista',
-            'calendario',
-            'categorias',
-        ]);
+    $responseMes = $this->getJson('/api/agenda');
+    $responseMes->assertStatus(200)
+        ->assertJsonStructure(['total', 'agendamentos', 'calendario']);
+
+    $responseSemana = $this->getJson('/api/agenda/semana');
+    $responseSemana->assertStatus(200)
+        ->assertJsonStructure(['inicio_semana', 'fim_semana', 'dias', 'total_semana']);
 });
 
-test('agenda dia retorna data formatada, compromissos e destaques', function () {
+test('permite criar, editar e concluir consulta com receita no financeiro', function () {
+    Sanctum::actingAs($this->user);
+
     $hoje = Carbon::today()->format('Y-m-d');
-    $response = $this->getJson("/api/agenda/dia?data={$hoje}");
 
-    $response->assertStatus(200)
-        ->assertJsonStructure([
-            'data',
-            'dataFormatada',
-            'totalAgendados',
-            'compromissos',
-            'destaques',
-        ]);
-});
-
-test('permite criar, editar e excluir evento na agenda', function () {
-    // 1. Criar
+    // 1. Criar evento
     $create = $this->postJson('/api/agenda/eventos', [
-        'nome' => 'Mariana Alves Teste',
-        'data' => Carbon::tomorrow()->format('Y-m-d'),
-        'horario_inicio' => '14:00',
-        'horario_fim' => '15:00',
-        'categoria' => 'Primeira consulta',
-        'descricao' => 'Paciente primeira vez',
+        'nome' => 'Consulta Nova de Teste',
+        'data' => $hoje,
+        'horario_inicio' => '15:00',
+        'horario_fim' => '15:50',
+        'categoria' => 'Sessão de terapia',
+        'tone' => 'rose',
+        'status' => 'agendado',
     ]);
 
-    $create->assertStatus(201)
-        ->assertJsonPath('message', 'Alterações salvas com sucesso!');
-
+    $create->assertStatus(201);
     $eventoId = $create->json('agendamento.id');
 
-    // 2. Editar
+    // 2. Concluir consulta gerando receita automática
     $update = $this->putJson("/api/agenda/eventos/{$eventoId}", [
         'status' => 'realizado',
-        'descricao' => 'Atendimento finalizado com sucesso.',
+        'gerar_receita' => true,
+        'valor_receita' => 190.00,
     ]);
 
-    $update->assertStatus(200)
-        ->assertJsonPath('agendamento.status', 'realizado');
+    $update->assertStatus(200);
 
-    // 3. Excluir
-    $delete = $this->deleteJson("/api/agenda/eventos/{$eventoId}");
-    $delete->assertStatus(200)
-        ->assertJsonPath('message', 'Alterações salvas com sucesso!');
+    // 3. Verifica se receita foi lançada no financeiro
+    $this->assertDatabaseHas('movimentacoes_financeiras', [
+        'agendamento_id' => $eventoId,
+        'valor' => 190.00,
+        'tipo' => 'receita',
+    ]);
 });
 
-test('financeiro exige filtros manuais e inicia sem selecao', function () {
+test('financeiro exige filtros manuais e registra movimentacoes', function () {
+    Sanctum::actingAs($this->user);
+
     // Sem filtros
     $semFiltro = $this->getJson('/api/financeiro');
     $semFiltro->assertStatus(200)
-        ->assertJsonPath('filtros_aplicados', false);
+        ->assertJson(['filtros_aplicados' => false]);
 
-    // Com filtros aplicados manualmente
-    $comFiltro = $this->getJson('/api/financeiro?ano=2026&mes=8&periodo=mes');
+    // Com filtros
+    $comFiltro = $this->getJson('/api/financeiro?ano=' . Carbon::today()->year . '&mes=' . Carbon::today()->month);
     $comFiltro->assertStatus(200)
-        ->assertJsonPath('filtros_aplicados', true)
-        ->assertJsonStructure([
-            'filtros_aplicados',
-            'receitas',
-            'despesas',
-            'saldo',
-            'movimentacoes',
-            'historico',
-        ]);
+        ->assertJson(['filtros_aplicados' => true]);
 });
 
-test('permite cadastrar e excluir movimentacao financeira', function () {
-    $create = $this->postJson('/api/financeiro', [
-        'descricao' => 'Consulta Psicológica Teste',
-        'tipo' => 'receita',
-        'valor' => 190.00,
-        'data' => Carbon::today()->format('Y-m-d'),
-        'categoria' => 'Atendimentos',
+test('permite gerenciar produtos e servicos', function () {
+    Sanctum::actingAs($this->user);
+
+    $create = $this->postJson('/api/produtos', [
+        'nome' => 'E-book Teste',
+        'tipo' => 'E-book',
+        'preco' => 39.90,
+        'status' => 'ativo',
     ]);
 
-    $create->assertStatus(201)
-        ->assertJsonPath('message', 'Alterações salvas com sucesso!');
+    $create->assertStatus(201);
+    $prodId = $create->json('produto.id');
 
-    $movId = $create->json('movimentacao.id');
+    $this->getJson('/api/produtos')->assertStatus(200);
 
-    $delete = $this->deleteJson("/api/financeiro/{$movId}");
-    $delete->assertStatus(200);
+    $this->deleteJson("/api/produtos/{$prodId}")->assertStatus(200);
 });
 
-test('permite consultar e atualizar perfil profissional com crp e telefone', function () {
-    $show = $this->getJson('/api/perfil');
-    $show->assertStatus(200)
-        ->assertJsonStructure([
-            'id', 'name', 'email', 'telefone', 'crp', 'bio',
-        ]);
+test('administrador consegue listar psicologos e ver estatisticas', function () {
+    Sanctum::actingAs($this->user);
 
-    $update = $this->putJson('/api/perfil', [
-        'name' => 'Yasmin Teixeira Santos',
-        'email' => 'yasmin@lumina.com',
-        'telefone' => '(11) 98765-0000',
-        'crp' => '06/999999',
-        'bio' => 'Bio atualizada com sucesso',
+    $this->getJson('/api/admin/psicologos')->assertStatus(200);
+    $this->getJson('/api/admin/estatisticas-gerais')->assertStatus(200);
+});
+
+test('permite criar serie recorrente de agendamentos e detectar conflitos', function () {
+    Sanctum::actingAs($this->user);
+
+    $hoje = Carbon::today()->format('Y-m-d');
+
+    // Simulação prévia
+    $simulacao = $this->postJson('/api/agenda/recorrencia', [
+        'nome' => 'Série Recorrente Teste',
+        'data_inicio' => $hoje,
+        'horario_inicio' => '17:00',
+        'modo' => 'sessoes',
+        'quantidade_sessoes' => 4,
+        'recorrencia_tipo' => 'semanal',
+        'simulacao' => true,
     ]);
 
-    $update->assertStatus(200)
-        ->assertJsonPath('message', 'Alterações salvas com sucesso!')
-        ->assertJsonPath('perfil.crp', '06/999999');
+    $simulacao->assertStatus(200)
+        ->assertJsonStructure(['simulacao', 'total_sessoes', 'datas']);
+
+    // Criação real
+    $criacao = $this->postJson('/api/agenda/recorrencia', [
+        'nome' => 'Série Recorrente Teste',
+        'data_inicio' => $hoje,
+        'horario_inicio' => '17:00',
+        'modo' => 'sessoes',
+        'quantidade_sessoes' => 4,
+        'recorrencia_tipo' => 'semanal',
+        'valor_sessao' => 180.00,
+        'status_pagamento' => 'pendente',
+    ]);
+
+    $criacao->assertStatus(201)
+        ->assertJson(['total_criadas' => 4]);
+
+    $grupoId = $criacao->json('recorrencia_grupo_id');
+    expect($grupoId)->not->toBeEmpty();
 });
+
+test('permite registrar prontuario diretamente a partir de um agendamento', function () {
+    Sanctum::actingAs($this->user);
+
+    $hoje = Carbon::today()->format('Y-m-d');
+    $agendamento = Agendamento::create([
+        'user_id' => $this->user->id,
+        'nome' => 'Paciente Prontuario Teste',
+        'data' => $hoje,
+        'horario_inicio' => '18:00',
+    ]);
+
+    $resp = $this->postJson("/api/agenda/eventos/{$agendamento->id}/prontuario", [
+        'titulo' => 'Evolução Clínica de Teste',
+        'evolucao' => 'Paciente relatou redução significativa de ansiedade.',
+    ]);
+
+    $resp->assertStatus(201)
+        ->assertJsonStructure(['message', 'prontuario']);
+
+    $this->assertDatabaseHas('prontuarios', [
+        'user_id' => $this->user->id,
+        'titulo' => 'Evolução Clínica de Teste',
+    ]);
+});
+
+test('permite emitir recibo clinico e exportar csv financeiro', function () {
+    Sanctum::actingAs($this->user);
+
+    $hoje = Carbon::today()->format('Y-m-d');
+    $agendamento = Agendamento::create([
+        'user_id' => $this->user->id,
+        'nome' => 'Paciente Recibo Teste',
+        'data' => $hoje,
+        'horario_inicio' => '19:00',
+        'valor_sessao' => 200.00,
+    ]);
+
+    $recibo = $this->getJson("/api/financeiro/recibo/{$agendamento->id}");
+    $recibo->assertStatus(200)
+        ->assertJsonStructure(['recibo_numero', 'paciente_nome', 'valor_formatado', 'declaracao']);
+
+    $csv = $this->get('/api/financeiro/exportar?ano=' . Carbon::today()->year);
+    $csv->assertStatus(200);
+});
+

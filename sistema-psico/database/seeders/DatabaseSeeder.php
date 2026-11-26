@@ -6,7 +6,8 @@ use App\Models\Agendamento;
 use App\Models\LancamentoFinanceiro;
 use App\Models\MovimentacaoFinanceira;
 use App\Models\Paciente;
-use App\Models\Projeto;
+use App\Models\Produto;
+use App\Models\Prontuario;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
@@ -14,36 +15,55 @@ use Illuminate\Database\Seeder;
 /**
  * Seeder Principal do Sistema Lumina
  * 
- * Popula a base de dados SQLite com dados completos e realistas para:
- * - Perfil profissional com CRP, telefone e bio
- * - Pacientes com status 'ativo' e 'inativo'
- * - Agendamentos com status 'agendado', 'realizado' e 'cancelado'
- * - Movimentações financeiras (receitas e despesas individuais)
- * - Projetos do portfólio
+ * Popula a base de dados com dados realistas para ambiente de desenvolvimento:
+ * - Usuário Administrador (Yasmin) e Psicólogo de teste (Dr. Marcos)
+ * - Pacientes vinculados aos profissionais
+ * - Agendamentos vinculados a pacientes
+ * - Prontuários e evoluções clínicas
+ * - Movimentações financeiras
+ * - Produtos e serviços
  */
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
         $hoje = Carbon::today()->format('Y-m-d');
+        $amanha = Carbon::tomorrow()->format('Y-m-d');
         $mesAtual = Carbon::today()->month;
         $anoAtual = Carbon::today()->year;
 
-        // 1. Usuário Administrador com Perfil Profissional
-        User::updateOrCreate(
+        // 1. Usuário Administrador
+        $admin = User::updateOrCreate(
             ['email' => 'yasmin@lumina.com'],
             [
                 'name' => 'Yasmin Teixeira',
                 'password' => 'senha123',
+                'role' => 'admin',
+                'is_active' => true,
                 'telefone' => '(11) 98765-4321',
                 'crp' => '06/184920',
-                'bio' => 'Psicóloga Clínica especialista em Terapia Cognitivo-Comportamental (TCC), dedicada ao acolhimento de jovens e adultos com empatia e propósito.',
+                'bio' => 'Psicóloga Clínica e Administradora do sistema, especialista em TCC.',
                 'foto_perfil' => null,
             ]
         );
 
-        // 2. Pacientes (ativos e inativos para validação da regra de negócio)
-        $pacientes = [
+        // 2. Psicólogo de demonstração
+        $psicologo = User::updateOrCreate(
+            ['email' => 'psicologo@lumina.com'],
+            [
+                'name' => 'Dr. Marcos Silveira',
+                'password' => 'senha123',
+                'role' => 'psicologo',
+                'is_active' => true,
+                'telefone' => '(11) 97123-4567',
+                'crp' => '06/192834',
+                'bio' => 'Psicólogo Clínico com ênfase em Psicanálise e atendimento a adolescentes.',
+                'foto_perfil' => null,
+            ]
+        );
+
+        // 3. Pacientes da Yasmin (Admin/Psicóloga)
+        $pacientesData = [
             ['nome' => 'Beatriz', 'sobrenome' => 'Lima', 'status' => 'ativo', 'telefone' => '(11) 99123-4567', 'email' => 'beatriz.lima@email.com'],
             ['nome' => 'Raquel', 'sobrenome' => 'Santos', 'status' => 'ativo', 'telefone' => '(11) 99234-5678', 'email' => 'raquel.santos@email.com'],
             ['nome' => 'Jhonatan', 'sobrenome' => 'Henrique', 'status' => 'ativo', 'telefone' => '(11) 99345-6789', 'email' => 'jhonatan.h@email.com'],
@@ -54,165 +74,146 @@ class DatabaseSeeder extends Seeder
             ['nome' => 'Sofia', 'sobrenome' => 'Mendes', 'status' => 'inativo', 'telefone' => '(11) 99890-1234', 'email' => 'sofia.m@email.com'],
         ];
 
-        foreach ($pacientes as $p) {
-            Paciente::firstOrCreate(
-                ['nome' => $p['nome'], 'sobrenome' => $p['sobrenome']],
-                $p
+        $pacientesCriados = [];
+        foreach ($pacientesData as $p) {
+            $paciente = Paciente::updateOrCreate(
+                ['email' => $p['email']],
+                array_merge($p, ['user_id' => $admin->id])
             );
+            $pacientesCriados[$p['nome']] = $paciente;
         }
 
-        // 3. Agendamentos na Agenda
-        // Consultas para hoje (agendadas)
-        Agendamento::firstOrCreate(
-            ['data' => $hoje, 'horario_inicio' => '09:00', 'nome' => 'Beatriz Lima'],
+        // 4. Agendamentos
+        // Consultas de Hoje (agendadas)
+        Agendamento::updateOrCreate(
+            ['data' => $hoje, 'horario_inicio' => '09:00', 'user_id' => $admin->id],
             [
+                'paciente_id' => $pacientesCriados['Beatriz']->id,
+                'nome' => 'Beatriz Lima',
                 'horario_fim' => '09:50',
                 'categoria' => 'Sessão de terapia',
                 'tone' => 'rose',
                 'status' => 'agendado',
-                'descricao' => 'Sessão semanal de acompanhamento - foco em ansiedade.',
+                'descricao' => 'Atendimento semanal regular de TCC.',
+                'observacoes' => 'Trabalhar técnicas de regulação emocional e ansiedade.',
             ]
         );
 
-        Agendamento::firstOrCreate(
-            ['data' => $hoje, 'horario_inicio' => '10:30', 'nome' => 'Raquel Santos'],
+        Agendamento::updateOrCreate(
+            ['data' => $hoje, 'horario_inicio' => '11:00', 'user_id' => $admin->id],
             [
-                'horario_fim' => '11:20',
+                'paciente_id' => $pacientesCriados['Raquel']->id,
+                'nome' => 'Raquel Santos',
+                'horario_fim' => '11:50',
                 'categoria' => 'Primeira consulta',
                 'tone' => 'green',
                 'status' => 'agendado',
-                'descricao' => 'Anamnese inicial e alinhamento de objetivos terapêuticos.',
+                'descricao' => 'Acolhimento inicial e anamnese.',
+                'observacoes' => 'Paciente encaminhada por indicação médica.',
             ]
         );
 
-        Agendamento::firstOrCreate(
-            ['data' => $hoje, 'horario_inicio' => '14:00', 'nome' => 'Jhonatan Henrique'],
+        Agendamento::updateOrCreate(
+            ['data' => $hoje, 'horario_inicio' => '14:30', 'user_id' => $admin->id],
             [
-                'horario_fim' => '14:50',
+                'paciente_id' => $pacientesCriados['Jhonatan']->id,
+                'nome' => 'Jhonatan Henrique',
+                'horario_fim' => '15:20',
+                'categoria' => 'Sessão de terapia',
+                'tone' => 'rose',
+                'status' => 'agendado',
+                'descricao' => 'Acompanhamento psicoterápico quinzenal.',
+            ]
+        );
+
+        // Consulta de amanhã
+        Agendamento::updateOrCreate(
+            ['data' => $amanha, 'horario_inicio' => '10:00', 'user_id' => $admin->id],
+            [
+                'paciente_id' => $pacientesCriados['Mariana']->id,
+                'nome' => 'Mariana Alves',
+                'horario_fim' => '10:50',
                 'categoria' => 'Avaliação psicológica',
                 'tone' => 'gold',
                 'status' => 'agendado',
-                'descricao' => 'Aplicação de escala de humor e inventário de sintomas.',
             ]
         );
 
-        // Atendimentos realizados neste mês (para alimentar indicador de realizados)
-        $dataPassada1 = Carbon::today()->subDays(2)->format('Y-m-d');
-        Agendamento::firstOrCreate(
-            ['data' => $dataPassada1, 'horario_inicio' => '15:00', 'nome' => 'Mariana Alves'],
-            [
-                'horario_fim' => '15:50',
-                'categoria' => 'Sessão de terapia',
-                'tone' => 'rose',
-                'status' => 'realizado',
-                'descricao' => 'Sessão realizada com sucesso.',
-            ]
-        );
-
-        $dataPassada2 = Carbon::today()->subDays(4)->format('Y-m-d');
-        Agendamento::firstOrCreate(
-            ['data' => $dataPassada2, 'horario_inicio' => '16:00', 'nome' => 'Lucas Martins'],
-            [
-                'horario_fim' => '16:50',
-                'categoria' => 'Retorno / Acompanhamento',
-                'tone' => 'blue',
-                'status' => 'realizado',
-                'descricao' => 'Reavaliação mensal de metas.',
-            ]
-        );
-
-        // Atendimento cancelado (NÃO deve entrar na contagem de realizados)
-        Agendamento::firstOrCreate(
-            ['data' => $dataPassada1, 'horario_inicio' => '17:00', 'nome' => 'Renato Carvalho'],
-            [
-                'horario_fim' => '17:50',
-                'categoria' => 'Sessão de terapia',
-                'tone' => 'rose',
-                'status' => 'cancelado',
-                'descricao' => 'Paciente cancelou com aviso prévio por motivo de viagem.',
-            ]
-        );
-
-        // Mais atendimentos realizados ao longo do ano
-        for ($i = 1; $i <= 5; $i++) {
-            $dataMesAnterior = Carbon::today()->subMonths(1)->day(max(1, $i * 4))->format('Y-m-d');
-            Agendamento::firstOrCreate(
-                ['data' => $dataMesAnterior, 'horario_inicio' => "1{$i}:00", 'nome' => "Paciente Histórico {$i}"],
+        // Atendimentos realizados este mês para cálculo correto das métricas
+        for ($dia = 1; $dia <= 12; $dia++) {
+            $dataRealizada = Carbon::create($anoAtual, $mesAtual, min($dia * 2, 28))->format('Y-m-d');
+            Agendamento::updateOrCreate(
+                ['data' => $dataRealizada, 'horario_inicio' => '16:00', 'user_id' => $admin->id],
                 [
-                    'horario_fim' => "1{$i}:50",
-                    'categoria' => 'Sessão de terapia',
-                    'tone' => 'rose',
+                    'paciente_id' => $pacientesCriados['Lucas']->id,
+                    'nome' => 'Lucas Martins',
+                    'horario_fim' => '16:50',
+                    'categoria' => 'Retorno / Acompanhamento',
+                    'tone' => 'blue',
                     'status' => 'realizado',
                 ]
             );
         }
 
-        // Consultas futuras na semana que vem
-        $dataFutura = Carbon::today()->addDays(3)->format('Y-m-d');
-        Agendamento::firstOrCreate(
-            ['data' => $dataFutura, 'horario_inicio' => '11:00', 'nome' => 'Camila Ferreira'],
+        // 5. Prontuários Clínicos
+        Prontuario::updateOrCreate(
+            ['paciente_id' => $pacientesCriados['Beatriz']->id, 'user_id' => $admin->id, 'data_sessao' => Carbon::now()->subDays(7)->format('Y-m-d')],
             [
-                'horario_fim' => '11:50',
-                'categoria' => 'Sessão de terapia',
-                'tone' => 'rose',
-                'status' => 'agendado',
-                'descricao' => 'Continuidade do plano terapêutico.',
+                'titulo' => 'Sessão #4 - Reestruturação Cognitiva',
+                'evolucao' => 'Paciente demonstrou bom engajamento na tarefa de registro de pensamentos automáticos. Identificamos distorções como catastrofização.',
+                'metas_terapeuticas' => 'Continuar diário de pensamentos e treino de respiração diafragmática.',
+                'observacoes' => 'Sem ideação suicida ou risco iminente. Humor eutímico.',
             ]
         );
 
-        // 4. Movimentações Financeiras (Receitas e Despesas Reais)
+        // 6. Movimentações Financeiras
         $movimentacoes = [
-            // Mês atual
-            ['descricao' => 'Sessão de Psicoterapia - Beatriz Lima', 'tipo' => 'receita', 'valor' => 180.00, 'data' => $hoje, 'categoria' => 'Atendimentos'],
-            ['descricao' => 'Primeira Consulta - Raquel Santos', 'tipo' => 'receita', 'valor' => 200.00, 'data' => $hoje, 'categoria' => 'Atendimentos'],
-            ['descricao' => 'Avaliação Psicológica - Jhonatan Henrique', 'tipo' => 'receita', 'valor' => 350.00, 'data' => $hoje, 'categoria' => 'Atendimentos'],
-            ['descricao' => 'Aluguel de Consultório (Sublocação)', 'tipo' => 'despesa', 'valor' => 650.00, 'data' => Carbon::today()->startOfMonth()->format('Y-m-d'), 'categoria' => 'Consultório'],
-            ['descricao' => 'Plataforma de Prontuário Eletrônico', 'tipo' => 'despesa', 'valor' => 89.90, 'data' => Carbon::today()->startOfMonth()->addDays(5)->format('Y-m-d'), 'categoria' => 'Software'],
-            ['descricao' => 'Supervisão Clínica Mensal', 'tipo' => 'despesa', 'valor' => 250.00, 'data' => Carbon::today()->startOfMonth()->addDays(10)->format('Y-m-d'), 'categoria' => 'Supervisão'],
-            // Mês anterior
-            ['descricao' => 'Pacote Mensal - Beatriz Lima', 'tipo' => 'receita', 'valor' => 720.00, 'data' => Carbon::today()->subMonths(1)->day(5)->format('Y-m-d'), 'categoria' => 'Atendimentos'],
-            ['descricao' => 'Atendimentos Clínicos - Mariana Alves', 'tipo' => 'receita', 'valor' => 540.00, 'data' => Carbon::today()->subMonths(1)->day(12)->format('Y-m-d'), 'categoria' => 'Atendimentos'],
-            ['descricao' => 'Aluguel de Sala de Atendimento', 'tipo' => 'despesa', 'valor' => 650.00, 'data' => Carbon::today()->subMonths(1)->day(5)->format('Y-m-d'), 'categoria' => 'Consultório'],
-            ['descricao' => 'Materiais Lúdicos e de Testes', 'tipo' => 'despesa', 'valor' => 160.00, 'data' => Carbon::today()->subMonths(1)->day(18)->format('Y-m-d'), 'categoria' => 'Material Clínico'],
+            ['descricao' => 'Sessão de Terapia - Beatriz Lima', 'tipo' => 'receita', 'valor' => 180.00, 'categoria' => 'Atendimentos', 'data' => $hoje],
+            ['descricao' => 'Primeira Consulta - Raquel Santos', 'tipo' => 'receita', 'valor' => 200.00, 'categoria' => 'Atendimentos', 'data' => $hoje],
+            ['descricao' => 'Aluguel do Consultório - Mês Corrente', 'tipo' => 'despesa', 'valor' => 850.00, 'categoria' => 'Consultório', 'data' => Carbon::create($anoAtual, $mesAtual, 5)->format('Y-m-d')],
+            ['descricao' => 'Supervisão Clínica TCC', 'tipo' => 'despesa', 'valor' => 250.00, 'categoria' => 'Cursos / Supervisão', 'data' => Carbon::create($anoAtual, $mesAtual, 10)->format('Y-m-d')],
         ];
 
         foreach ($movimentacoes as $mov) {
-            MovimentacaoFinanceira::firstOrCreate(
-                ['descricao' => $mov['descricao'], 'data' => $mov['data'], 'valor' => $mov['valor']],
-                $mov
+            MovimentacaoFinanceira::updateOrCreate(
+                ['descricao' => $mov['descricao'], 'data' => $mov['data'], 'user_id' => $admin->id],
+                array_merge($mov, ['user_id' => $admin->id])
             );
         }
 
-        // 5. Projetos do Portfólio & Dashboard
-        $projetos = [
+        // 7. Produtos e Serviços
+        $produtos = [
             [
-                'titulo' => 'Clínica Aurora',
-                'categoria' => 'Identidade visual',
-                'status' => 'Publicado',
-                'descricao' => 'Criação de uma identidade visual acolhedora e alinhada ao posicionamento ético e profissional da clínica.',
+                'nome' => 'Guia Prático de Ansiedade e Regulação Emocional',
+                'tipo' => 'E-book',
+                'descricao' => 'Material digital ilustrado com exercícios práticos para controle de ansiedade.',
+                'preco' => 49.90,
+                'status' => 'ativo',
+                'link_acesso' => 'https://lumina.com/materiais/guia-ansiedade',
             ],
             [
-                'titulo' => 'Casa Nativa',
-                'categoria' => 'Web design',
-                'status' => 'Publicado',
-                'descricao' => 'Interfaces responsivas e acessíveis para transformar ideias em experiências digitais humanizadas.',
+                'nome' => 'Mentoria para Psicólogos Recém-formados',
+                'tipo' => 'Mentoria',
+                'descricao' => 'Programa de 4 encontros individuais com orientação de casos clínicos e posicionamento ético.',
+                'preco' => 600.00,
+                'status' => 'ativo',
+                'link_acesso' => null,
             ],
             [
-                'titulo' => 'Ateliê Manacá',
-                'categoria' => 'E-commerce',
-                'status' => 'Rascunho',
-                'descricao' => 'Planejamento e estruturação de loja digital e catálogo de produtos terapêuticos.',
-            ],
-            [
-                'titulo' => 'Secretária Virtual',
-                'categoria' => 'Administrativo',
-                'status' => 'Publicado',
-                'descricao' => 'Organização de rotinas, controle de agendamentos e prontuários para psicólogos.',
+                'nome' => 'Workshop: Saúde Mental no Trabalho',
+                'tipo' => 'Palestra',
+                'descricao' => 'Palestra corporativa interativa com foco em prevenção do Burnout.',
+                'preco' => 1200.00,
+                'status' => 'ativo',
+                'link_acesso' => null,
             ],
         ];
 
-        foreach ($projetos as $proj) {
-            Projeto::firstOrCreate(['titulo' => $proj['titulo']], $proj);
+        foreach ($produtos as $prod) {
+            Produto::updateOrCreate(
+                ['nome' => $prod['nome'], 'user_id' => $admin->id],
+                array_merge($prod, ['user_id' => $admin->id])
+            );
         }
     }
 }

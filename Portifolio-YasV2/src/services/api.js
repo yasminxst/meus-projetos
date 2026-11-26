@@ -3,9 +3,10 @@
  * 
  * Centraliza as requisições HTTP para o backend Laravel (sistema-psico).
  * Responsável por:
- * 1. Definir a URL base do servidor backend (porta 8000).
- * 2. Injetar automaticamente o cabeçalho Authorization com o Bearer Token quando autenticado.
- * 3. Tratar erros de requisição e converter respostas JSON.
+ * 1. Definir a URL base do servidor backend.
+ * 2. Injetar automaticamente o cabeçalho Authorization Bearer Token.
+ * 3. Injetar o cabeçalho X-Impersonate-User-Id quando o administrador visualiza na perspectiva de outro psicólogo.
+ * 4. Métodos para Dashboard, Agenda (Mensal e Semanal), Financeiro, Pacientes, Prontuário, Produtos, Ajustes de Conta e Administração.
  */
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
@@ -16,17 +17,21 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api"
 async function request(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
 
-  // Recupera o token de autenticação salvo na sessão do navegador
+  // Recupera o token de autenticação e o ID de impersonação
   const token = sessionStorage.getItem("lumina-token") || localStorage.getItem("lumina-token");
+  const impersonateId = sessionStorage.getItem("lumina-impersonate-id");
 
   const defaultHeaders = {
     "Content-Type": "application/json",
     Accept: "application/json",
   };
 
-  // Se houver um token, anexa ao cabeçalho Authorization no padrão Bearer
   if (token) {
     defaultHeaders["Authorization"] = `Bearer ${token}`;
+  }
+
+  if (impersonateId) {
+    defaultHeaders["X-Impersonate-User-Id"] = impersonateId;
   }
 
   const config = {
@@ -40,14 +45,12 @@ async function request(endpoint, options = {}) {
   try {
     const response = await fetch(url, config);
 
-    // Se o backend responder com código de erro (4xx ou 5xx)
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       const message = errorData.message || `Erro na requisição (${response.status}): ${response.statusText}`;
       throw new Error(message);
     }
 
-    // Se a resposta for 204 No Content (ex: após exclusão)
     if (response.status === 204) {
       return null;
     }
@@ -61,9 +64,8 @@ async function request(endpoint, options = {}) {
 
 export const api = {
   // ==========================================
-  // 1. AUTENTICAÇÃO
+  // 1. AUTENTICAÇÃO E AJUSTES DE CONTA
   // ==========================================
-
   async login(email, password) {
     const data = await request("/login", {
       method: "POST",
@@ -82,12 +84,12 @@ export const api = {
   async logout() {
     try {
       await request("/logout", { method: "POST" });
-    } catch {
-      // Ignora erro ao deslogar
     } finally {
       sessionStorage.removeItem("lumina-token");
       sessionStorage.removeItem("lumina-authenticated");
       sessionStorage.removeItem("lumina-user");
+      sessionStorage.removeItem("lumina-impersonate-id");
+      sessionStorage.removeItem("lumina-impersonate-name");
     }
   },
 
@@ -95,61 +97,76 @@ export const api = {
     return await request("/me");
   },
 
-  // ==========================================
-  // 2. DASHBOARD — AMBIENTE GERAL
-  // ==========================================
+  async atualizarSenha(dados) {
+    return await request("/conta/senha", {
+      method: "PUT",
+      body: JSON.stringify(dados),
+    });
+  },
 
-  /**
-   * Retorna os 4 indicadores reais e a seção de últimas atualizações da agenda.
-   */
+  async atualizarEmail(email) {
+    return await request("/conta/email", {
+      method: "PUT",
+      body: JSON.stringify({ email }),
+    });
+  },
+
+  // Impersonation (Visualização como outro psicólogo)
+  setImpersonate(id, name) {
+    if (id) {
+      sessionStorage.setItem("lumina-impersonate-id", String(id));
+      sessionStorage.setItem("lumina-impersonate-name", name || "Psicólogo");
+    } else {
+      this.clearImpersonate();
+    }
+  },
+
+  clearImpersonate() {
+    sessionStorage.removeItem("lumina-impersonate-id");
+    sessionStorage.removeItem("lumina-impersonate-name");
+  },
+
+  getImpersonate() {
+    const id = sessionStorage.getItem("lumina-impersonate-id");
+    const name = sessionStorage.getItem("lumina-impersonate-name");
+    return id ? { id, name } : null;
+  },
+
+  // ==========================================
+  // 2. DASHBOARD
+  // ==========================================
   async getDashboard() {
     return await request("/dashboard");
   },
 
-  /**
-   * Alias para getDashboard
-   */
-  async getDashboardStats() {
-    return await request("/dashboard");
-  },
-
-  /**
-   * Busca as últimas atualizações da agenda separadamente se necessário.
-   */
-  async getDashboardUpdates() {
-    return await request("/dashboard/updates");
+  async getAlertas() {
+    return await request("/dashboard/alertas");
   },
 
   // ==========================================
-  // 3. ATIVIDADES — AGENDA
+  // 3. AGENDA (MENSAL, SEMANAL E DIÁRIA)
   // ==========================================
-
-  /**
-   * Consulta a Agenda Geral (mensal com calendário e mapa de dias).
-   */
-  async getAgenda(params = {}) {
-    const query = new URLSearchParams(params).toString();
-    const endpoint = query ? `/agenda?${query}` : "/agenda";
-    return await request(endpoint);
+  async getAgenda(mes, ano) {
+    const params = new URLSearchParams();
+    if (mes !== undefined && mes !== null) params.append("mes", mes);
+    if (ano) params.append("ano", ano);
+    return await request(`/agenda?${params.toString()}`);
   },
 
-  /**
-   * Consulta a Agenda Diária para um dia específico (com destaques dos 3 mais próximos).
-   */
-  async getAgendaDia(dataStr) {
-    return await request(`/agenda/dia?data=${encodeURIComponent(dataStr)}`);
+  async getAgendaSemanal(dataRef) {
+    const params = new URLSearchParams();
+    if (dataRef) params.append("data", dataRef);
+    return await request(`/agenda/semana?${params.toString()}`);
   },
 
-  /**
-   * Retorna as categorias disponíveis da agenda e suas cores para a legenda.
-   */
+  async getAgendaDia(data) {
+    return await request(`/agenda/dia?data=${encodeURIComponent(data)}`);
+  },
+
   async getCategorias() {
     return await request("/agenda/categorias");
   },
 
-  /**
-   * Cadastra um novo evento na agenda.
-   */
   async createEvento(dados) {
     return await request("/agenda/eventos", {
       method: "POST",
@@ -157,9 +174,20 @@ export const api = {
     });
   },
 
-  /**
-   * Edita um evento existente na agenda.
-   */
+  async createEventoRecorrente(dados) {
+    return await request("/agenda/recorrencia", {
+      method: "POST",
+      body: JSON.stringify(dados),
+    });
+  },
+
+  async registrarProntuarioAgendamento(agendamentoId, dados) {
+    return await request(`/agenda/eventos/${agendamentoId}/prontuario`, {
+      method: "POST",
+      body: JSON.stringify(dados),
+    });
+  },
+
   async updateEvento(id, dados) {
     return await request(`/agenda/eventos/${id}`, {
       method: "PUT",
@@ -167,52 +195,78 @@ export const api = {
     });
   },
 
-  /**
-   * Exclui um evento da agenda.
-   */
-  async deleteEvento(id) {
-    return await request(`/agenda/eventos/${id}`, {
+  async deleteEvento(id, escopo = "individual") {
+    return await request(`/agenda/eventos/${id}?escopo=${escopo}`, {
       method: "DELETE",
     });
   },
 
-  // Compatibilidade retroativa
-  async getAgendamentos(params = {}) {
-    return this.getAgenda(params);
+  // ==========================================
+  // 4. PACIENTES & PRONTUÁRIOS
+  // ==========================================
+  async getPacientes() {
+    return await request("/pacientes");
   },
-  async createAgendamento(dados) {
-    return this.createEvento(dados);
+
+  async getPaciente(id) {
+    return await request(`/pacientes/${id}`);
   },
-  async deleteAgendamento(id) {
-    return this.deleteEvento(id);
+
+  async createPaciente(dados) {
+    return await request("/pacientes", {
+      method: "POST",
+      body: JSON.stringify(dados),
+    });
+  },
+
+  async updatePaciente(id, dados) {
+    return await request(`/pacientes/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(dados),
+    });
+  },
+
+  async deletePaciente(id) {
+    return await request(`/pacientes/${id}`, {
+      method: "DELETE",
+    });
+  },
+
+  async getProntuarios(pacienteId) {
+    return await request(`/pacientes/${pacienteId}/prontuarios`);
+  },
+
+  async createProntuario(pacienteId, dados) {
+    return await request(`/pacientes/${pacienteId}/prontuarios`, {
+      method: "POST",
+      body: JSON.stringify(dados),
+    });
+  },
+
+  async updateProntuario(id, dados) {
+    return await request(`/prontuarios/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(dados),
+    });
+  },
+
+  async deleteProntuario(id) {
+    return await request(`/prontuarios/${id}`, {
+      method: "DELETE",
+    });
   },
 
   // ==========================================
-  // 4. FINANCEIRO
+  // 5. FINANCEIRO
   // ==========================================
-
-  /**
-   * Consulta as movimentações financeiras com base nos filtros manuais do usuário.
-   */
   async getFinanceiro(filtros = {}) {
-    const query = new URLSearchParams();
-    if (filtros.mes !== undefined && filtros.mes !== null && filtros.mes !== "") {
-      query.append("mes", filtros.mes);
-    }
-    if (filtros.ano !== undefined && filtros.ano !== null && filtros.ano !== "") {
-      query.append("ano", filtros.ano);
-    }
-    if (filtros.periodo) {
-      query.append("periodo", filtros.periodo);
-    }
-
-    const endpoint = query.toString() ? `/financeiro?${query.toString()}` : "/financeiro";
-    return await request(endpoint);
+    const params = new URLSearchParams();
+    if (filtros.mes) params.append("mes", filtros.mes);
+    if (filtros.ano) params.append("ano", filtros.ano);
+    if (filtros.periodo) params.append("periodo", filtros.periodo);
+    return await request(`/financeiro?${params.toString()}`);
   },
 
-  /**
-   * Cadastra uma nova movimentação financeira (receita ou despesa).
-   */
   async createMovimentacao(dados) {
     return await request("/financeiro", {
       method: "POST",
@@ -220,29 +274,57 @@ export const api = {
     });
   },
 
-  /**
-   * Remove uma movimentação financeira pelo ID.
-   */
   async deleteMovimentacao(id) {
     return await request(`/financeiro/${id}`, {
       method: "DELETE",
     });
   },
 
-  // ==========================================
-  // 5. CONFIGURAÇÕES — PERFIL PROFISSIONAL
-  // ==========================================
+  async getRecibo(agendamentoId) {
+    return await request(`/financeiro/recibo/${agendamentoId}`);
+  },
 
-  /**
-   * Retorna os dados do perfil profissional (CRP, telefone, bio, foto, nome, email).
-   */
+  getExportarCsvUrl(filtros = {}) {
+    const params = new URLSearchParams();
+    if (filtros.mes) params.append("mes", filtros.mes);
+    if (filtros.ano) params.append("ano", filtros.ano);
+    return `${API_BASE_URL}/financeiro/exportar?${params.toString()}`;
+  },
+
+  // ==========================================
+  // 6. PRODUTOS E SERVIÇOS
+  // ==========================================
+  async getProdutos() {
+    return await request("/produtos");
+  },
+
+  async createProduto(dados) {
+    return await request("/produtos", {
+      method: "POST",
+      body: JSON.stringify(dados),
+    });
+  },
+
+  async updateProduto(id, dados) {
+    return await request(`/produtos/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(dados),
+    });
+  },
+
+  async deleteProduto(id) {
+    return await request(`/produtos/${id}`, {
+      method: "DELETE",
+    });
+  },
+
+  // ==========================================
+  // 7. CONFIGURAÇÕES & PERFIL
+  // ==========================================
   async getPerfil() {
     return await request("/perfil");
   },
 
-  /**
-   * Salva as alterações no perfil profissional.
-   */
   async updatePerfil(dados) {
     return await request("/perfil", {
       method: "PUT",
@@ -251,31 +333,33 @@ export const api = {
   },
 
   // ==========================================
-  // 6. PROJETOS (CRUD COMPLETO)
+  // 8. ADMINISTRAÇÃO EXCLUSIVA
   // ==========================================
-
-  async getProjetos(publicadosApenas = false) {
-    const endpoint = publicadosApenas ? "/projetos?publicados_apenas=1" : "/projetos";
-    return await request(endpoint);
+  async getAdminPsicologos() {
+    return await request("/admin/psicologos");
   },
 
-  async createProjeto(dados) {
-    return await request("/projetos", {
+  async createAdminPsicologo(dados) {
+    return await request("/admin/psicologos", {
       method: "POST",
       body: JSON.stringify(dados),
     });
   },
 
-  async updateProjeto(id, dados) {
-    return await request(`/projetos/${id}`, {
+  async togglePsicologoStatus(id) {
+    return await request(`/admin/psicologos/${id}/toggle-status`, {
       method: "PUT",
-      body: JSON.stringify(dados),
     });
   },
 
-  async deleteProjeto(id) {
-    return await request(`/projetos/${id}`, {
-      method: "DELETE",
-    });
+  async getAdminEstatisticas() {
+    return await request("/admin/estatisticas-gerais");
+  },
+
+  // Projetos legado
+  async getProjetos() {
+    return await request("/projetos");
   },
 };
+
+export default api;

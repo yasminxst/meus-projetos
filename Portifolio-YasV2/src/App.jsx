@@ -8,6 +8,7 @@ import DashboardLayout from "./Layouts/Dashboard/Dashboard";
 import DashboardHome from "./Routes/Dashboard/Home";
 import DashboardAgenda from "./Routes/Dashboard/Agenda";
 import Atividades from "./Routes/Dashboard/Atividades";
+import Pacientes from "./Routes/Dashboard/Pacientes";
 import DashboardConfiguracoes from "./Routes/Dashboard/Configuracoes";
 import DashboardFinanceiro from "./Routes/Dashboard/Financeiro";
 import DashboardProjetos from "./components/sections/Dashboard/Projetos";
@@ -27,8 +28,9 @@ function App() {
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<DashboardHome />} />
               <Route path="geral" element={<DashboardHome />} />
-              <Route path="atividades" element={<Atividades />} />
               <Route path="agenda" element={<DashboardAgenda />} />
+              <Route path="pacientes" element={<Pacientes />} />
+              <Route path="atividades" element={<Atividades />} />
               <Route path="financeiro" element={<DashboardFinanceiro />} />
               <Route path="configuracoes" element={<DashboardConfiguracoes />} />
               <Route path="projetos" element={<DashboardProjetos />} />

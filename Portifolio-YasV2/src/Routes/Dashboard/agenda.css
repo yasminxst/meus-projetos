@@ -523,3 +523,343 @@
     width: 100%;
   }
 }
+
+/* ========================================== */
+/* VISÃO SEMANAL & POP-UP DE PACIENTE */
+/* ========================================== */
+.agenda-view-switch {
+  display: inline-flex;
+  background: var(--agenda-line);
+  padding: 3px;
+  border-radius: 9px;
+  gap: 3px;
+}
+
+.agenda-view-switch button {
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--agenda-muted);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.agenda-view-switch button.active {
+  background: #fff;
+  color: var(--agenda-ink);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.agenda-week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  margin-top: 18px;
+}
+
+@media (max-width: 991px) {
+  .agenda-week-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 575px) {
+  .agenda-week-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.agenda-week-col {
+  background: var(--agenda-paper);
+  border-radius: 12px;
+  border: 1px solid var(--agenda-line);
+  padding: 12px 10px;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+}
+
+.agenda-week-col.is-today {
+  border-color: var(--agenda-accent);
+  background: #fdfcfb;
+}
+
+.agenda-week-col-header {
+  text-align: center;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--agenda-line);
+  margin-bottom: 10px;
+}
+
+.agenda-week-col-header span {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--agenda-muted);
+}
+
+.agenda-week-col-header strong {
+  display: inline-block;
+  font-size: 1.15rem;
+  color: var(--agenda-ink);
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  border-radius: 50%;
+}
+
+.agenda-week-col.is-today .agenda-week-col-header strong {
+  background: var(--agenda-accent);
+  color: #fff;
+}
+
+.agenda-week-events {
+  display: grid;
+  gap: 8px;
+  flex: 1;
+}
+
+.agenda-week-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 10px;
+  border-left: 3px solid #ccc;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  text-align: left;
+}
+
+.agenda-week-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.agenda-week-card.rose { border-left-color: #d98a8a; }
+.agenda-week-card.green { border-left-color: #808c6d; }
+.agenda-week-card.gold { border-left-color: #d9b18f; }
+.agenda-week-card.blue { border-left-color: #7b9ebd; }
+
+.agenda-week-card strong {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--agenda-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agenda-week-card span {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--agenda-muted);
+}
+
+/* POPUP MODAL DETALHADO DO PACIENTE E CONSULTA */
+.agenda-patient-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 35, 26, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 20px;
+}
+
+.agenda-patient-popup-card {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.18);
+  overflow: hidden;
+  animation: popupSlideIn 0.25s ease-out;
+}
+
+@keyframes popupSlideIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.agenda-patient-popup-header {
+  padding: 20px 24px;
+  background: var(--agenda-paper);
+  border-bottom: 1px solid var(--agenda-line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.agenda-patient-popup-body {
+  padding: 24px;
+}
+
+.agenda-detail-group {
+  margin-bottom: 16px;
+}
+
+.agenda-detail-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--agenda-muted);
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.agenda-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.agenda-quick-btn {
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1px solid var(--agenda-line);
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.agenda-quick-btn:hover {
+  background: var(--agenda-paper);
+}
+
+.agenda-quick-btn.success {
+  background: #808c6d;
+  color: #fff;
+  border-color: #808c6d;
+}
+
+.agenda-quick-btn.success:hover {
+  background: #6a7459;
+}
+
+.agenda-quick-btn.danger {
+  color: #c94a4a;
+  border-color: #f0c5c5;
+}
+
+.agenda-quick-btn.danger:hover {
+  background: #fdf2f2;
+}
+
+
+/* ========================================== */
+/* ESTILOS DE RECORRÊNCIA E PRONTUÁRIO INTEGRADO */
+/* ========================================== */
+.agenda-recurrence-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: var(--agenda-line);
+  padding: 4px;
+  border-radius: 9px;
+  margin-bottom: 14px;
+}
+
+.agenda-recurrence-toggle button {
+  border: none;
+  background: transparent;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--agenda-muted);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.agenda-recurrence-toggle button.active {
+  background: #fff;
+  color: var(--agenda-ink);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.agenda-recurrence-card {
+  background: #fbfaf8;
+  border: 1px solid var(--agenda-line);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.agenda-simulation-box {
+  background: #fff;
+  border: 1px solid var(--agenda-line);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 12px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.agenda-simulation-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--agenda-paper);
+  font-size: 0.8rem;
+}
+
+.agenda-simulation-item:last-child {
+  border-bottom: none;
+}
+
+.agenda-simulation-item.conflict {
+  background: #fff5f5;
+  border-radius: 6px;
+}
+
+.badge-conflict {
+  background: #fed7d7;
+  color: #9b2c2c;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.badge-free {
+  background: #c6f6d5;
+  color: #22543d;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.agenda-recurrence-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #eed9c4;
+  color: #735d43;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}

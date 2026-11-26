@@ -193,13 +193,42 @@ function Financeiro() {
           <p>Acompanhamento de receitas, despesas e saldo real do consultório.</p>
         </div>
 
-        <button
-          className="dashboard-primary-button"
-          type="button"
-          onClick={() => setModalAberto(true)}
-        >
-          <i className="bi bi-plus-lg" aria-hidden="true" /> Nova movimentação
-        </button>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          {filtrosAplicados && (
+            <button
+              className="dashboard-secondary-button"
+              type="button"
+              onClick={() => {
+                const url = api.getExportarCsvUrl({ mes: filtroMes, ano: filtroAno });
+                const token = sessionStorage.getItem("lumina-token");
+                fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+                  .then((res) => res.blob())
+                  .then((blob) => {
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = downloadUrl;
+                    a.download = `relatorio_financeiro_${filtroAno || "geral"}_${filtroMes || ""}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    toast.success("Relatório CSV exportado com sucesso!");
+                  })
+                  .catch(() => toast.error("Falha ao exportar relatório."));
+              }}
+              title="Baixar planilha compatível com Excel"
+            >
+              <i className="bi bi-file-earmark-spreadsheet me-1" /> Exportar CSV
+            </button>
+          )}
+
+          <button
+            className="dashboard-primary-button"
+            type="button"
+            onClick={() => setModalAberto(true)}
+          >
+            <i className="bi bi-plus-lg" aria-hidden="true" /> Nova movimentação
+          </button>
+        </div>
       </div>
 
       {/* BARRA DE FILTROS MANUAIS (INICIA SEM SELEÇÃO AUTOMÁTICA) */}

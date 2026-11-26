@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lumina_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8080"
+    environment:
+      APP_NAME: "Lumina"
+      APP_ENV: local
+      APP_KEY: base64:U/rxrOujiTAWuEt4RtYD4Dwjx7NyRfWfLp4zyXJyzRc=
+      APP_DEBUG: "true"
+      APP_URL: "http://localhost:8000"
+      PORT: "8080"
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: lumina
+      DB_USERNAME: lumina_user
+      DB_PASSWORD: secret_password
+      RUN_SEEDER: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - lumina_network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: lumina_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lumina
+      POSTGRES_USER: lumina_user
+      POSTGRES_PASSWORD: secret_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lumina_user -d lumina"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - lumina_network
+
+volumes:
+  pgdata:
+
+networks:
+  lumina_network:
+    driver: bridge

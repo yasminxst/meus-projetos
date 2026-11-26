@@ -2,33 +2,38 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\ResolvesUserContext;
+use App\Models\Agendamento;
 use App\Models\MovimentacaoFinanceira;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Controller Financeiro Lumina (FinanceiroController)
  * 
  * Gerencia as movimentações financeiras reais (receitas e despesas) do consultório:
- * - Filtros estritos: Inicializa sem seleção e só carrega dados após escolha manual do usuário (Mês, Ano, Período).
- * - Histórico dos últimos meses.
+ * - Filtros estritos por Mês, Ano e Período vinculados ao usuário.
  * - Cálculo consolidado de receitas, despesas e saldo real.
- * - Cadastro e exclusão de movimentações manuais com persistência no banco SQLite.
+ * - Cadastro e exclusão de movimentações manuais com persistência real.
+ * - Exportação de relatórios em CSV/Excel e emissão de recibos clínicos individuais.
  */
 class FinanceiroController extends Controller
 {
+    use ResolvesUserContext;
+
     /**
      * Consulta as movimentações financeiras respeitando a regra estrita de filtros.
-     * Se nenhum filtro for enviado, retorna filtros_aplicados = false.
      */
     public function index(Request $request): JsonResponse
     {
-        $mes = $request->input('mes'); // 0 a 11 ou 1 a 12
-        $ano = $request->input('ano'); // Ex: 2026
-        $periodo = $request->input('periodo'); // 'mes', 'trimestre', 'semestre', 'ano', 'tudo'
+        $userId = $this->getTargetUserId($request);
+        $mes = $request->input('mes');
+        $ano = $request->input('ano');
+        $periodo = $request->input('periodo');
 
-        // Regra estrita: Se o usuário não selecionou nenhum filtro, não carrega dados automaticamente
+        // Se o usuário não selecionou nenhum filtro, não carrega dados automaticamente
         if ($mes === null && $ano === null && empty($periodo)) {
             return response()->json([
                 'filtros_aplicados' => false,
@@ -41,61 +46,67 @@ class FinanceiroController extends Controller
             ], 200);
         }
 
-        $query = MovimentacaoFinanceira::query()->orderBy('data', 'desc')->orderBy('id', 'desc');
+        $query = MovimentacaoFinanceira::where('user_id', $userId)
+            ->orderBy('data', 'desc')
+            ->orderBy('id', 'desc');
 
-        // Filtro por Ano
         if (! empty($ano)) {
             $query->whereYear('data', (int) $ano);
         }
 
-        // Filtro por Mês (se informado)
         if ($mes !== null && $mes !== '') {
             $mesInt = (int) $mes;
-            // Se o front enviar zero-indexed (0 a 11), converte para 1 a 12
             if ($request->boolean('zero_indexed', false)) {
                 $mesInt += 1;
             }
             $query->whereMonth('data', $mesInt);
         }
 
-        // Filtro por Período
-        if ($periodo === 'trimestre') {
-            $mesRef = $mes !== null ? ((int) $mes) : Carbon::now()->month;
-            $inicioTrimestre = max(1, $mesRef - 2);
-            $query->whereMonth('data', '>=', $inicioTrimestre)->whereMonth('data', '<=', $mesRef);
-        } elseif ($periodo === 'semestre') {
-            $mesRef = $mes !== null ? ((int) $mes) : Carbon::now()->month;
-            $inicioSemestre = max(1, $mesRef - 5);
-            $query->whereMonth('data', '>=', $inicioSemestre)->whereMonth('data', '<=', $mesRef);
+        if (! empty($periodo) && empty($mes)) {
+            $hoje = Carbon::today();
+            switch ($periodo) {
+                case 'mes':
+                    $query->whereMonth('data', $hoje->month)->whereYear('data', $hoje->year);
+                    break;
+                case 'trimestre':
+                    $query->where('data', '>=', $hoje->copy()->subMonths(3)->startOfDay()->format('Y-m-d'));
+                    break;
+                case 'semestre':
+                    $query->where('data', '>=', $hoje->copy()->subMonths(6)->startOfDay()->format('Y-m-d'));
+                    break;
+                case 'ano':
+                    $query->whereYear('data', (int) ($ano ?: $hoje->year));
+                    break;
+            }
         }
 
         $movimentacoes = $query->get();
 
-        // Cálculos reais com base nos registros do banco
         $receitas = (float) $movimentacoes->where('tipo', 'receita')->sum('valor');
         $despesas = (float) $movimentacoes->where('tipo', 'despesa')->sum('valor');
         $saldo = round($receitas - $despesas, 2);
 
-        // Histórico mensal agrupado dos últimos meses para visualização gráfica
-        $nomesMeses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
         $historico = [];
+        $anoBase = (int) ($ano ?: Carbon::today()->year);
+        $mesesNomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-        // Monta os últimos 6 meses com base nas movimentações encontradas
         for ($m = 1; $m <= 12; $m++) {
-            $recMes = (float) MovimentacaoFinanceira::whereMonth('data', $m)
-                ->when($ano, fn ($q) => $q->whereYear('data', (int) $ano))
+            $recMes = (float) MovimentacaoFinanceira::where('user_id', $userId)
+                ->whereYear('data', $anoBase)
+                ->whereMonth('data', $m)
                 ->where('tipo', 'receita')
                 ->sum('valor');
 
-            $despMes = (float) MovimentacaoFinanceira::whereMonth('data', $m)
-                ->when($ano, fn ($q) => $q->whereYear('data', (int) $ano))
+            $despMes = (float) MovimentacaoFinanceira::where('user_id', $userId)
+                ->whereYear('data', $anoBase)
+                ->whereMonth('data', $m)
                 ->where('tipo', 'despesa')
                 ->sum('valor');
 
-            if ($recMes > 0 || $despMes > 0 || ($mes !== null && ((int) $mes) === $m)) {
+            if ($recMes > 0 || $despMes > 0 || $m <= Carbon::today()->month) {
                 $historico[] = [
-                    'mesNumero' => $m,
-                    'mes' => $nomesMeses[$m - 1],
+                    'mes' => $m,
+                    'nome' => $mesesNomes[$m - 1],
                     'receitas' => $recMes,
                     'despesas' => $despMes,
                     'saldo' => round($recMes - $despMes, 2),
@@ -120,16 +131,19 @@ class FinanceiroController extends Controller
     }
 
     /**
-     * Cadastra uma nova movimentação financeira (Receita ou Despesa).
+     * Cadastra uma nova movimentação financeira vinculada ao usuário.
      */
     public function store(Request $request): JsonResponse
     {
+        $userId = $this->getTargetUserId($request);
+
         $dados = $request->validate([
             'descricao' => ['required', 'string', 'max:255'],
             'tipo' => ['required', 'in:receita,despesa'],
             'valor' => ['required', 'numeric', 'min:0.01'],
             'data' => ['required', 'date'],
             'categoria' => ['required', 'string', 'max:100'],
+            'agendamento_id' => ['nullable', 'exists:agendamentos,id'],
         ], [
             'descricao.required' => 'A descrição da movimentação é obrigatória.',
             'tipo.required' => 'O tipo (receita ou despesa) é obrigatório.',
@@ -139,6 +153,8 @@ class FinanceiroController extends Controller
             'categoria.required' => 'A categoria é obrigatória.',
         ]);
 
+        $dados['user_id'] = $userId;
+
         $movimentacao = MovimentacaoFinanceira::create($dados);
 
         return response()->json([
@@ -147,15 +163,86 @@ class FinanceiroController extends Controller
         ], 201);
     }
 
-    /**
-     * Remove uma movimentação financeira pelo ID.
-     */
     public function destroy(MovimentacaoFinanceira $movimentacao): JsonResponse
     {
         $movimentacao->delete();
 
         return response()->json([
             'message' => 'Alterações salvas com sucesso!',
+        ], 200);
+    }
+
+    /**
+     * Exporta o relatório de movimentações filtradas em formato CSV/Excel tabular.
+     */
+    public function exportarCsv(Request $request): StreamedResponse
+    {
+        $userId = $this->getTargetUserId($request);
+        $mes = $request->input('mes');
+        $ano = $request->input('ano');
+        $periodo = $request->input('periodo');
+
+        $query = MovimentacaoFinanceira::where('user_id', $userId)
+            ->orderBy('data', 'asc');
+
+        if (!empty($ano)) {
+            $query->whereYear('data', (int) $ano);
+        }
+        if ($mes !== null && $mes !== '') {
+            $query->whereMonth('data', (int) $mes);
+        }
+
+        $movimentacoes = $query->get();
+
+        $nomeArquivo = 'relatorio_financeiro_' . date('Y_m_d_His') . '.csv';
+
+        return response()->streamDownload(function () use ($movimentacoes) {
+            $output = fopen('php://output', 'w');
+            // UTF-8 BOM para garantir acentos corretos no Microsoft Excel
+            fputs($output, "\xEF\xBB\xBF");
+            fputcsv($output, ['Identificador', 'Descricao', 'Tipo', 'Categoria', 'Data', 'Valor (R$)'], ';');
+
+            foreach ($movimentacoes as $m) {
+                fputcsv($output, [
+                    '#' . $m->id,
+                    $m->descricao,
+                    $m->tipo === 'receita' ? 'Receita' : 'Despesa',
+                    $m->categoria,
+                    Carbon::parse($m->data)->format('d/m/Y'),
+                    number_format($m->valor, 2, ',', '.'),
+                ], ';');
+            }
+
+            fclose($output);
+        }, $nomeArquivo, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    /**
+     * Gera os dados e layout do Recibo Clínico de atendimento para impressão / PDF.
+     */
+    public function recibo(Request $request, Agendamento $agendamento): JsonResponse
+    {
+        $agendamento->load(['paciente', 'user']);
+        $user = $agendamento->user ?? $request->user();
+
+        $valor = $agendamento->valor_sessao ?: 180.00;
+        $dataAtendimento = $agendamento->data ? Carbon::parse($agendamento->data)->format('d/m/Y') : Carbon::today()->format('d/m/Y');
+
+        return response()->json([
+            'recibo_numero' => str_pad((string) $agendamento->id, 6, '0', STR_PAD_LEFT),
+            'paciente_nome' => $agendamento->nome,
+            'paciente_cpf' => $agendamento->paciente?->cpf ?? 'Não informado',
+            'valor' => $valor,
+            'valor_formatado' => 'R$ ' . number_format($valor, 2, ',', '.'),
+            'servico' => $agendamento->categoria ?: 'Atendimento Psicoterápico',
+            'data_atendimento' => $dataAtendimento,
+            'data_emissao' => Carbon::now()->format('d/m/Y'),
+            'profissional_nome' => $user->name,
+            'profissional_crp' => $user->crp ?? '06/184920',
+            'profissional_email' => $user->email,
+            'declaracao' => "Recebi de {$agendamento->nome} a importância de R$ " . number_format($valor, 2, ',', '.') . " referente a serviços de {$agendamento->categoria} realizados em {$dataAtendimento}.",
         ], 200);
     }
 }

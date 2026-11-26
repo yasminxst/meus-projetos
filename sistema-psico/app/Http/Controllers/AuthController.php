@@ -6,28 +6,20 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rules\Password;
 
 /**
- * Controller de Autenticação (AuthController)
+ * Controller de Autenticação e Conta (AuthController)
  * 
- * Responsável por gerenciar o ciclo de vida do login e acesso ao sistema.
- * Utiliza o Laravel Sanctum para fornecer tokens de acesso seguros para o React.
+ * Gerencia o ciclo de autenticação, perfil e ajustes de conta do profissional.
  */
 class AuthController extends Controller
 {
     /**
-     * Realiza o login do usuário.
-     * 
-     * Fluxo:
-     * 1. Valida se email e senha foram enviados no formato correto.
-     * 2. Localiza o usuário no banco de dados pelo email.
-     * 3. Compara a senha enviada com o hash criptografado usando Hash::check.
-     * 4. Gera um Bearer Token com Sanctum e devolve em JSON para o frontend.
+     * Realiza o login do usuário e retorna token Sanctum com role e perfil.
      */
     public function login(Request $request): JsonResponse
     {
-        // Validação simples dos dados da requisição
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
@@ -37,20 +29,24 @@ class AuthController extends Controller
             'password.required' => 'A senha é obrigatória.',
         ]);
 
-        // Busca o usuário no banco
         $user = User::where('email', $credentials['email'])->first();
 
-        // Se o usuário não existir ou a senha estiver incorreta
         if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             return response()->json([
                 'message' => 'Credenciais inválidas. Verifique seu e-mail e senha.',
             ], 401);
         }
 
-        // Remove tokens antigos do mesmo usuário (boa prática de segurança)
+        if (isset($user->is_active) && !$user->is_active) {
+            return response()->json([
+                'message' => 'Esta conta foi desativada pelo administrador.',
+            ], 403);
+        }
+
+        // Remove tokens antigos do mesmo usuário
         $user->tokens()->delete();
 
-        // Gera um novo token de acesso
+        // Gera novo token
         $token = $user->createToken('frontend-access-token')->plainTextToken;
 
         return response()->json([
@@ -60,6 +56,11 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'role' => $user->role ?? 'psicologo',
+                'crp' => $user->crp,
+                'telefone' => $user->telefone,
+                'bio' => $user->bio,
+                'foto_perfil' => $user->foto_perfil,
             ],
         ], 200);
     }
@@ -72,7 +73,16 @@ class AuthController extends Controller
         $user = $request->user();
 
         return response()->json([
-            'user' => $user,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role ?? 'psicologo',
+                'crp' => $user->crp,
+                'telefone' => $user->telefone,
+                'bio' => $user->bio,
+                'foto_perfil' => $user->foto_perfil,
+            ],
         ], 200);
     }
 
@@ -81,13 +91,74 @@ class AuthController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        // Exclui o token que fez a requisição atual
         if ($request->user()) {
             $request->user()->currentAccessToken()->delete();
         }
 
         return response()->json([
             'message' => 'Sessão encerrada com sucesso.',
+        ], 200);
+    }
+
+    /**
+     * Atualização de senha (Ajustes da Conta).
+     */
+    public function atualizarSenha(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
+        ], [
+            'current_password.required' => 'Informe a senha atual.',
+            'password.required' => 'Informe a nova senha.',
+            'password.min' => 'A nova senha deve ter no mínimo 6 caracteres.',
+            'password.confirmed' => 'A confirmação de senha não confere.',
+        ]);
+
+        if (! Hash::check($validated['current_password'], $user->password)) {
+            return response()->json([
+                'message' => 'A senha atual informada está incorreta.',
+            ], 422);
+        }
+
+        $user->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return response()->json([
+            'message' => 'Senha atualizada com sucesso!',
+        ], 200);
+    }
+
+    /**
+     * Atualização do e-mail de acesso (Ajustes da Conta).
+     */
+    public function atualizarEmail(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'email' => ['required', 'email', 'unique:users,email,' . $user->id],
+        ], [
+            'email.required' => 'Informe o novo endereço de e-mail.',
+            'email.email' => 'Informe um e-mail válido.',
+            'email.unique' => 'Este e-mail já está sendo utilizado por outro usuário.',
+        ]);
+
+        $user->update([
+            'email' => $validated['email'],
+        ]);
+
+        return response()->json([
+            'message' => 'E-mail de acesso atualizado com sucesso!',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+            ],
         ], 200);
     }
 }

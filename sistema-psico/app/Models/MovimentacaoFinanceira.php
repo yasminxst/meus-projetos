@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Model MovimentacaoFinanceira
  * 
  * Gerencia as entradas (receitas) e saídas (despesas) do consultório.
- * Não é gerado automaticamente a partir de consultas, respeitando a separação
- * estrita de regras de negócio entre a Agenda e o Financeiro.
+ * Vinculado ao usuário profissional e opcionalmente a um agendamento específico.
  */
 class MovimentacaoFinanceira extends Model
 {
@@ -19,6 +19,8 @@ class MovimentacaoFinanceira extends Model
     protected $table = 'movimentacoes_financeiras';
 
     protected $fillable = [
+        'user_id',
+        'agendamento_id',
         'descricao',
         'tipo',
         'valor',
@@ -30,4 +32,14 @@ class MovimentacaoFinanceira extends Model
         'data' => 'date:Y-m-d',
         'valor' => 'float',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function agendamento(): BelongsTo
+    {
+        return $this->belongsTo(Agendamento::class);
+    }
 }

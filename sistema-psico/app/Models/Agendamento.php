@@ -4,13 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Model Agendamento
  * 
  * Gerencia as consultas e compromissos profissionais no Lumina.
- * Permite diferenciar consultas agendadas, realizadas e canceladas,
- * além de armazenar horários de início e fim e categorias com legenda de cores.
+ * Conectado ao Usuário e Paciente via chave estrangeira.
  */
 class Agendamento extends Model
 {
@@ -19,6 +20,13 @@ class Agendamento extends Model
     protected $table = 'agendamentos';
 
     protected $fillable = [
+        'user_id',
+        'paciente_id',
+        'recorrencia_grupo_id',
+        'recorrencia_tipo',
+        'recorrencia_periodo',
+        'sessao_numero',
+        'sessao_total',
         'nome',
         'descricao',
         'data',
@@ -27,11 +35,16 @@ class Agendamento extends Model
         'categoria',
         'tone',
         'status',
+        'status_pagamento',
+        'valor_sessao',
         'observacoes',
     ];
 
     protected $casts = [
         'data' => 'date:Y-m-d',
+        'valor_sessao' => 'float',
+        'sessao_numero' => 'integer',
+        'sessao_total' => 'integer',
     ];
 
     protected $appends = [
@@ -39,9 +52,21 @@ class Agendamento extends Model
         'tipo',
     ];
 
-    /**
-     * Alias para compatibilidade: $agendamento->horario retorna horario_inicio.
-     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function paciente(): BelongsTo
+    {
+        return $this->belongsTo(Paciente::class);
+    }
+
+    public function movimentacaoFinanceira(): HasOne
+    {
+        return $this->hasOne(MovimentacaoFinanceira::class);
+    }
+
     public function getHorarioAttribute(): string
     {
         return $this->horario_inicio ?? '';
@@ -52,9 +77,6 @@ class Agendamento extends Model
         $this->attributes['horario_inicio'] = $value ?? '';
     }
 
-    /**
-     * Alias para compatibilidade: $agendamento->tipo retorna categoria.
-     */
     public function getTipoAttribute(): string
     {
         return $this->categoria ?? 'Sessão de terapia';
